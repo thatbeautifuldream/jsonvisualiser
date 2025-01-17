@@ -191,6 +191,7 @@ export function JsonInput({
         onChange={handleInputChange}
         placeholder="Paste your JSON here"
         className="flex-grow resize-none font-mono"
+        spellCheck={false}
       />
     </div>
   );
