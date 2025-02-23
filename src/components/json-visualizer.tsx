@@ -6,6 +6,7 @@ import { JsonInput } from "@/components/json-input";
 import { ModeToggle } from "@/components/mode-toggle";
 import { ShareDialog } from "@/components/share-dialog";
 import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchSharedJson } from "@/lib/services/share";
 import {
@@ -13,10 +14,17 @@ import {
   useJsonVisualizerStore,
 } from "@/lib/stores/json-visualizer-store";
 import { useQuery } from "@tanstack/react-query";
-import { Braces, Github } from "lucide-react";
+import {
+  Braces,
+  Code2Icon,
+  Github,
+  LayoutGridIcon,
+  ListTree,
+  SparklesIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
-import { JsonTree } from "./json-true";
+import { JsonTree } from "./json-tree";
 
 interface JsonVisualizerProps {
   initialShareId?: string;
@@ -68,13 +76,13 @@ export function JsonVisualizer({ initialShareId }: JsonVisualizerProps) {
   };
 
   return (
-    <div className="h-screen flex flex-col font-inter">
+    <div className="h-screen flex flex-col">
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as TabValue)}
         className="flex-grow flex flex-col"
       >
-        <div className="bg-gray-100 dark:bg-black px-4 py-2 flex items-center justify-between shadow-sm">
+        <div className="bg-gray-100 dark:bg-black px-4 flex items-center justify-between shadow-sm h-14">
           <div className="flex items-center space-x-4">
             <Link
               href="/"
@@ -85,32 +93,55 @@ export function JsonVisualizer({ initialShareId }: JsonVisualizerProps) {
               </div>
               <span className="hidden sm:block">JSON Visualiser</span>
             </Link>
-            <TabsList className="bg-gray-200 dark:bg-gray-900">
-              <TabsTrigger
-                value="input"
-                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 dark:text-gray-300"
-              >
-                Input
-              </TabsTrigger>
-              <TabsTrigger
-                value="tree"
-                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 dark:text-gray-300"
-              >
-                Tree
-              </TabsTrigger>
-              <TabsTrigger
-                value="grid"
-                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 dark:text-gray-300"
-              >
-                Grid
-              </TabsTrigger>
-              <TabsTrigger
-                value="ai"
-                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 dark:text-gray-300"
-              >
-                AI
-              </TabsTrigger>
-            </TabsList>
+            <ScrollArea className="h-14">
+              <TabsList className="text-foreground h-14 gap-2 rounded-none bg-transparent px-0">
+                <TabsTrigger
+                  value="input"
+                  className="hover:bg-accent hover:text-foreground data-[state=active]:after:bg-primary data-[state=active]:hover:bg-accent relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:text-gray-300"
+                >
+                  <Code2Icon
+                    className="-ms-0.5 me-1.5 opacity-60"
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  Input
+                </TabsTrigger>
+                <TabsTrigger
+                  value="tree"
+                  className="hover:bg-accent hover:text-foreground data-[state=active]:after:bg-primary data-[state=active]:hover:bg-accent relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:text-gray-300"
+                >
+                  <ListTree
+                    className="-ms-0.5 me-1.5 opacity-60"
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  Tree
+                </TabsTrigger>
+                <TabsTrigger
+                  value="grid"
+                  className="hover:bg-accent hover:text-foreground data-[state=active]:after:bg-primary data-[state=active]:hover:bg-accent relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:text-gray-300"
+                >
+                  <LayoutGridIcon
+                    className="-ms-0.5 me-1.5 opacity-60"
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  Grid
+                </TabsTrigger>
+                <TabsTrigger
+                  value="ai"
+                  className="hover:bg-accent hover:text-foreground data-[state=active]:after:bg-primary data-[state=active]:hover:bg-accent relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:text-gray-300"
+                >
+                  <SparklesIcon
+                    className="-ms-0.5 me-1.5 opacity-60"
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  AI
+                </TabsTrigger>
+              </TabsList>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
           </div>
           <div className="flex items-center space-x-0">
             {!initialShareId && <ShareDialog jsonInput={jsonInput} />}

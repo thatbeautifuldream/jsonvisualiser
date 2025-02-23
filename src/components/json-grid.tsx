@@ -10,7 +10,10 @@ interface JsonGridProps {
 }
 
 export function JsonGrid({ data, error }: JsonGridProps) {
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
+
+  const jsonViewTheme =
+    (resolvedTheme || theme) === "dark" ? "moonLight" : "defaultLight";
   if (error) {
     return (
       <Alert variant="destructive">
@@ -22,11 +25,7 @@ export function JsonGrid({ data, error }: JsonGridProps) {
   }
   return (
     <div className="h-full  overflow-auto">
-      <JSONGrid
-        className="font-mono"
-        data={data}
-        theme={theme === "dark" ? "moonLight" : "defaultLight"}
-      />
+      <JSONGrid className="font-mono" data={data} theme={jsonViewTheme} />
     </div>
   );
 }

@@ -1,8 +1,7 @@
-import React from "react";
-import dynamic from "next/dynamic";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
 
 const ReactJson = dynamic(() => import("react-json-view"), { ssr: false });
 
@@ -12,7 +11,10 @@ interface JsonViewProps {
 }
 
 export function JsonTree({ parsedJson, error }: JsonViewProps) {
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
+
+  const jsonViewTheme =
+    (resolvedTheme || theme) === "dark" ? "bright" : "bright:inverted";
 
   return (
     <div className="h-full overflow-auto">
@@ -26,7 +28,7 @@ export function JsonTree({ parsedJson, error }: JsonViewProps) {
       {parsedJson && (
         <ReactJson
           src={parsedJson}
-          theme={theme === "dark" ? "bright" : "bright:inverted"}
+          theme={jsonViewTheme}
           displayDataTypes={false}
           enableClipboard={false}
           collapsed={1}
