@@ -2,7 +2,11 @@
 
 An application for visualising, sharing, and analyzing JSON data with multiple viewing modes and AI-powered explanations.
 
+> Light Mode
+<img width="864" alt="image" src="https://github.com/user-attachments/assets/e038b166-1187-45fb-ab2e-95fae2223742" />
 
+> Dark Mode
+<img width="864" alt="image" src="https://github.com/user-attachments/assets/b1d2e01d-6385-4ec6-bcc7-fa1657765f29" />
 
 ## Features
 
