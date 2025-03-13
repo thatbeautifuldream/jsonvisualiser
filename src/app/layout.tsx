@@ -1,10 +1,9 @@
-import { LearnMorePopup } from "@/components/learn-more-popup";
 import Providers from "@/lib/providers";
 import type { Metadata } from "next";
-import { Raleway } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const raleway = Raleway({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "JSON Visualiser",
@@ -18,8 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={raleway.className} suppressHydrationWarning>
-        <LearnMorePopup />
+      <body className={inter.className} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

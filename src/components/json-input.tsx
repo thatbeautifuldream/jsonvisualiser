@@ -102,7 +102,12 @@ export function JsonInput({
         <div className="flex space-x-2 mb-2 overflow-x-auto whitespace-nowrap">
           {isSharedJson ? (
             <>
-              <Button onClick={handleCopy} size="xs" variant="outline">
+              <Button
+                onClick={handleCopy}
+                size="xs"
+                variant="outline"
+                disabled={!jsonInput}
+              >
                 <Copy className="w-4 h-4 md:mr-2" />
                 <span className="hidden md:inline">Copy</span>
               </Button>
@@ -114,11 +119,21 @@ export function JsonInput({
                 <Clipboard className="w-4 h-4 md:mr-2" />
                 <span className="hidden md:inline">Paste</span>
               </Button>
-              <Button onClick={handleCopy} size="xs" variant="outline">
+              <Button
+                onClick={handleCopy}
+                size="xs"
+                variant="outline"
+                disabled={!jsonInput}
+              >
                 <Copy className="w-4 h-4 md:mr-2" />
                 <span className="hidden md:inline">Copy</span>
               </Button>
-              <Button onClick={handleFormat} size="xs" variant="outline">
+              <Button
+                onClick={handleFormat}
+                size="xs"
+                variant="outline"
+                disabled={!jsonInput}
+              >
                 <FileJson className="w-4 h-4 md:mr-2" />
                 <span className="hidden md:inline">Format</span>
               </Button>
@@ -126,11 +141,17 @@ export function JsonInput({
                 onClick={handleRemoveWhitespace}
                 size="xs"
                 variant="outline"
+                disabled={!jsonInput}
               >
                 <X className="w-4 h-4 md:mr-2" />
                 <span className="hidden md:inline">Remove whitespace</span>
               </Button>
-              <Button onClick={handleClear} size="xs" variant="outline">
+              <Button
+                onClick={handleClear}
+                size="xs"
+                variant="outline"
+                disabled={!jsonInput}
+              >
                 <Trash className="w-4 h-4 md:mr-2" />
                 <span className="hidden md:inline">Clear</span>
               </Button>

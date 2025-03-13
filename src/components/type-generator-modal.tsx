@@ -44,7 +44,7 @@ export function TypeGeneratorModal({ jsonInput }: TypeGeneratorModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="xs" variant="outline">
+        <Button size="xs" variant="outline" disabled={!jsonInput}>
           <Code2 className="w-4 h-4 md:mr-2" />
           <span className="hidden md:inline">Generate Type</span>
         </Button>
