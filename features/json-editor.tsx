@@ -4,21 +4,21 @@ import Editor, { type Monaco } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 import { useCallback, useEffect, useRef } from "react";
 
-interface JSONEditorProps {
+type TJSONEditorProps = {
   value: string;
   onChange: (value: string | undefined) => void;
   onMount: (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => void;
   theme: "light" | "hc-black";
   className?: string;
-}
+};
 
-export function JSONEditor({ 
-  value, 
-  onChange, 
-  onMount, 
-  theme, 
-  className = "" 
-}: JSONEditorProps) {
+export function JSONEditor({
+  value,
+  onChange,
+  onMount,
+  theme,
+  className = ""
+}: TJSONEditorProps) {
   return (
     <div className={`h-full ${className}`}>
       <Editor

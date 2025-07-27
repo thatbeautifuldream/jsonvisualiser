@@ -3,18 +3,20 @@
 import { Check, X } from "lucide-react";
 import { forwardRef } from "react";
 
-interface StatusBarProps {
+type TStats = {
+  lines: number;
+  characters: number;
+  size: number;
+};
+
+type TStatusBarProps = {
   isValid: boolean;
   error: string;
-  stats: {
-    lines: number;
-    characters: number;
-    size: number;
-  };
+  stats: TStats;
   hasContent: boolean;
-}
+};
 
-export const StatusBar = forwardRef<HTMLDivElement, StatusBarProps>(
+export const StatusBar = forwardRef<HTMLDivElement, TStatusBarProps>(
   ({ isValid, error, stats, hasContent }, ref) => {
     return (
       <div

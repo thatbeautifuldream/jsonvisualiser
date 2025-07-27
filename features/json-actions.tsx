@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 
-interface JSONActionsProps {
+type TJSONActionsProps = {
   onFormat: () => void;
   onMinify: () => void;
   onCopy: () => void;
@@ -11,7 +11,7 @@ interface JSONActionsProps {
   isValid: boolean;
   className?: string;
   isVisible?: boolean;
-}
+};
 
 export function JSONActions({
   onFormat,
@@ -22,7 +22,7 @@ export function JSONActions({
   isValid,
   className = "",
   isVisible = true,
-}: JSONActionsProps) {
+}: TJSONActionsProps) {
   if (!isVisible) return null;
   return (
     <div className={`flex flex-wrap items-center gap-1 ${className}`}>

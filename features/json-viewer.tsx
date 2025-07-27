@@ -1,7 +1,7 @@
 "use client";
 
-import type { editor } from "monaco-editor";
 import type { Monaco } from "@monaco-editor/react";
+import type { editor } from "monaco-editor";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -11,14 +11,24 @@ import { JSONEditor } from "./json-editor";
 import { JSONTreeViewer } from "./json-tree-viewer";
 import { StatusBar } from "./status-bar";
 
+type TEditorTheme = "light" | "hc-black";
+type TStats = {
+  lines: number;
+  characters: number;
+  size: number;
+};
+type TTab = {
+  id: string;
+  label: string;
+  content: React.ReactNode;
+};
+
 export function JsonViewer() {
-  const [editorTheme, setEditorTheme] = useState<"light" | "hc-black">(
-    "hc-black"
-  );
+  const [editorTheme, setEditorTheme] = useState<TEditorTheme>("hc-black");
   const [jsonValue, setJsonValue] = useState("");
   const [isValid, setIsValid] = useState(true);
   const [error, setError] = useState<string>("");
-  const [stats, setStats] = useState({ lines: 0, characters: 0, size: 0 });
+  const [stats, setStats] = useState<TStats>({ lines: 0, characters: 0, size: 0 });
   const [parsedJson, setParsedJson] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("editor");
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);

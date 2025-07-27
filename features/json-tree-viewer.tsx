@@ -3,11 +3,11 @@
 import { JSONTree } from "react-json-tree";
 import { useTheme } from "next-themes";
 
-interface JSONTreeViewerProps {
+type TJSONTreeViewerProps = {
   data: any;
   className?: string;
   editorTheme?: "light" | "hc-black";
-}
+};
 
 const lightTheme = {
   scheme: "extreme-light",
@@ -53,7 +53,7 @@ export function JSONTreeViewer({
   data,
   className = "",
   editorTheme,
-}: JSONTreeViewerProps) {
+}: TJSONTreeViewerProps) {
   const { theme } = useTheme();
 
   // Use editor theme if provided, otherwise fall back to app theme
