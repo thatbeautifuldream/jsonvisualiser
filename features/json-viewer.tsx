@@ -12,16 +12,13 @@ import { JSONTreeViewer } from "./json-tree-viewer";
 import { StatusBar } from "./status-bar";
 
 type TEditorTheme = "light" | "hc-black";
+
 type TStats = {
   lines: number;
   characters: number;
   size: number;
 };
-type TTab = {
-  id: string;
-  label: string;
-  content: React.ReactNode;
-};
+
 
 export function JsonViewer() {
   const [editorTheme, setEditorTheme] = useState<TEditorTheme>("hc-black");
