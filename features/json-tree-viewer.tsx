@@ -71,7 +71,7 @@ export function JSONTreeViewer({
   }
 
   return (
-    <div className={`p-4 overflow-auto h-full font-mono ${className}`}>
+    <div className={`px-4 overflow-auto h-full font-mono ${className}`}>
       <JSONTree
         data={data}
         theme={currentTheme}

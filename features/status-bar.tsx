@@ -3,6 +3,14 @@
 import { Check, X } from "lucide-react";
 import { forwardRef } from "react";
 
+const formatSize = (bytes: number): string => {
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+};
+
 type TStats = {
   lines: number;
   characters: number;
@@ -36,10 +44,39 @@ export const StatusBar = forwardRef<HTMLDivElement, TStatusBarProps>(
             </span>
           )}
         </div>
-        <div className="flex items-center gap-4">
-          <span>Lines: {stats.lines}</span>
-          <span>Characters: {stats.characters}</span>
-          <span>Size: {stats.size} bytes</span>
+        <div className="flex items-center gap-1">
+          <span
+            className="px-1 hover:bg-muted transition-colors cursor-default"
+            title="Lines"
+          >
+            Lines: {stats.lines}
+          </span>
+          <span
+            className="px-1 hover:bg-muted transition-colors cursor-default"
+            title="Characters"
+          >
+            Characters: {stats.characters}
+          </span>
+          <span
+            className="px-1 hover:bg-muted transition-colors cursor-default"
+            title="Size"
+          >
+            Size: {formatSize(stats.size)}
+          </span>
+          <span
+            className="px-1 hover:bg-muted transition-colors cursor-default text-muted-foreground"
+            title="Creator"
+          >
+            Made by{" "}
+            <a
+              href="https://milindmishra.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground hover:underline transition-colors"
+            >
+              Milind
+            </a>
+          </span>
         </div>
       </div>
     );
