@@ -96,6 +96,23 @@ export function JsonViewer() {
         enableSchemaRequest: true,
       });
 
+      // Add VS Code native keybindings for folding
+      // Ctrl/Cmd + K, Ctrl/Cmd + 0 - Fold All
+      editor.addCommand(
+        monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0),
+        () => {
+          editor.getAction('editor.foldAll')?.run();
+        }
+      );
+      
+      // Ctrl/Cmd + K, Ctrl/Cmd + J - Unfold All  
+      editor.addCommand(
+        monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ),
+        () => {
+          editor.getAction('editor.unfoldAll')?.run();
+        }
+      );
+
       // Listen for marker changes to update validation state
       monaco.editor.onDidChangeMarkers(() => {
         updateErrorFromMarkers();
