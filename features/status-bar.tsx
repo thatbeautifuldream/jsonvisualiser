@@ -2,6 +2,8 @@
 
 import { Check, X } from "lucide-react";
 import { forwardRef } from "react";
+import NumberFlow from '@number-flow/react'
+
 
 const formatSize = (bytes: number): string => {
   if (bytes === 0) return "0 B";
@@ -49,13 +51,13 @@ export const StatusBar = forwardRef<HTMLDivElement, TStatusBarProps>(
             className="px-1 hover:bg-muted transition-colors cursor-default"
             title="Lines"
           >
-            Lines: {stats.lines}
+            Lines: <NumberFlow value={stats.lines} />
           </span>
           <span
             className="px-1 hover:bg-muted transition-colors cursor-default"
             title="Characters"
           >
-            Characters: {stats.characters}
+            Characters: <NumberFlow value={stats.characters} />
           </span>
           <span
             className="px-1 hover:bg-muted transition-colors cursor-default"
