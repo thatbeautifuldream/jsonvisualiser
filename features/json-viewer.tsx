@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export function JsonViewer() {
-  const [editorTheme, setEditorTheme] = useState<"light" | "hc-black">("light");
+  const [editorTheme, setEditorTheme] = useState<"light" | "hc-black">("hc-black");
   const [jsonValue, setJsonValue] = useState("");
   const [isValid, setIsValid] = useState(true);
   const [error, setError] = useState<string>("");
