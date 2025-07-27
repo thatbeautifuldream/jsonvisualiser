@@ -31,7 +31,7 @@ export function JSONActions({
         className="text-xs"
         disabled={!hasContent}
         size="xs"
-        variant="outline"
+        variant="ghost"
       >
         Format
       </Button>
@@ -40,7 +40,7 @@ export function JSONActions({
         className="text-xs"
         disabled={!isValid || !hasContent}
         size="xs"
-        variant="outline"
+        variant="ghost"
       >
         Minify
       </Button>
@@ -49,7 +49,7 @@ export function JSONActions({
         className="text-xs"
         disabled={!hasContent}
         size="xs"
-        variant="outline"
+        variant="ghost"
       >
         Copy
       </Button>
@@ -58,7 +58,7 @@ export function JSONActions({
         className="text-xs"
         disabled={!hasContent}
         size="xs"
-        variant="outline"
+        variant="ghost"
       >
         Clear
       </Button>
