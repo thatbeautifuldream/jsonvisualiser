@@ -94,7 +94,7 @@ export function JSONTreeViewer({
               fontFamily: "var(--font-geist-mono)",
             }}
           >
-            {raw}
+            {String(raw)}
           </span>
         )}
       />
