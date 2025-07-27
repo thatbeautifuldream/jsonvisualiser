@@ -1,13 +1,15 @@
 "use client";
 
-import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "@/components/ui/button";
-import Editor, { type Monaco } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
+import type { Monaco } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Check, X } from "lucide-react";
+import { Header } from "./header";
+import { JSONActions } from "./json-actions";
+import { JSONEditor } from "./json-editor";
+import { JSONTreeViewer } from "./json-tree-viewer";
+import { StatusBar } from "./status-bar";
 
 export function JsonViewer() {
   const [editorTheme, setEditorTheme] = useState<"light" | "hc-black">(
@@ -17,6 +19,8 @@ export function JsonViewer() {
   const [isValid, setIsValid] = useState(true);
   const [error, setError] = useState<string>("");
   const [stats, setStats] = useState({ lines: 0, characters: 0, size: 0 });
+  const [parsedJson, setParsedJson] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState("editor");
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
@@ -41,16 +45,19 @@ export function JsonViewer() {
     if (!value.trim()) {
       setIsValid(true);
       setError("");
+      setParsedJson(null);
       return;
     }
 
     try {
-      JSON.parse(value);
+      const parsed = JSON.parse(value);
       setIsValid(true);
       setError("");
+      setParsedJson(parsed);
     } catch (err) {
       setIsValid(false);
       setError(err instanceof Error ? err.message : "Invalid JSON");
+      setParsedJson(null);
     }
   }, []);
 
@@ -99,17 +106,23 @@ export function JsonViewer() {
       // Add VS Code native keybindings for folding
       // Ctrl/Cmd + K, Ctrl/Cmd + 0 - Fold All
       editor.addCommand(
-        monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0),
+        monaco.KeyMod.chord(
+          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK,
+          monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0
+        ),
         () => {
-          editor.getAction('editor.foldAll')?.run();
+          editor.getAction("editor.foldAll")?.run();
         }
       );
-      
-      // Ctrl/Cmd + K, Ctrl/Cmd + J - Unfold All  
+
+      // Ctrl/Cmd + K, Ctrl/Cmd + J - Unfold All
       editor.addCommand(
-        monaco.KeyMod.chord(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ),
+        monaco.KeyMod.chord(
+          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK,
+          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ
+        ),
         () => {
-          editor.getAction('editor.unfoldAll')?.run();
+          editor.getAction("editor.unfoldAll")?.run();
         }
       );
 
@@ -168,6 +181,7 @@ export function JsonViewer() {
     setJsonValue("");
     setIsValid(true);
     setError("");
+    setParsedJson(null);
   }, []);
 
   useEffect(() => {
@@ -192,108 +206,76 @@ export function JsonViewer() {
     };
   }, [formatJson]);
 
-  return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between px-3 py-1 border-b flex-shrink-0 text-xs">
-        <h1 className="text-xs font-medium">JSON Visualiser</h1>
-        <div className="flex items-center gap-2">
-          <div className="flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
-            <div className="flex flex-wrap items-center gap-1">
-              <Button
-                onClick={formatJson}
-                className="text-xs"
-                disabled={!jsonValue.trim()}
-                size="sm"
-                variant="outline"
-              >
-                Format
-              </Button>
-              <Button
-                onClick={minifyJson}
-                className="text-xs"
-                disabled={!isValid || !jsonValue.trim()}
-                size="sm"
-                variant="outline"
-              >
-                Minify
-              </Button>
-              <Button
-                onClick={copyToClipboard}
-                className="text-xs"
-                disabled={!jsonValue.trim()}
-                size="sm"
-                variant="outline"
-              >
-                Copy
-              </Button>
-              <Button
-                onClick={clearEditor}
-                className="text-xs"
-                disabled={!jsonValue.trim()}
-                size="sm"
-                variant="outline"
-              >
-                Clear
-              </Button>
-            </div>
-            <div className="flex items-center gap-1">
-              <ModeToggle />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex-1 flex flex-col space-y-4 min-h-0">
-        <div className="border overflow-hidden flex flex-col flex-1 min-h-0">
-          <div className="flex-1">
-            <Editor
-              height="100%"
-              defaultLanguage="json"
+  const tabs = [
+    {
+      id: "editor",
+      label: "JSON Editor",
+      content: (
+        <div className="border flex flex-col h-full">
+          <div className="flex-1 min-h-0">
+            <JSONEditor
               value={jsonValue}
-              theme={editorTheme}
               onChange={handleEditorChange}
               onMount={handleEditorDidMount}
-              options={{
-                minimap: { enabled: true },
-                fontSize: 14,
-                lineNumbers: "on",
-                roundedSelection: false,
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                tabSize: 2,
-                insertSpaces: true,
-                wordWrap: "on",
-                folding: true,
-                foldingStrategy: "indentation",
-                showFoldingControls: "always",
-                bracketPairColorization: { enabled: true },
-              }}
+              theme={editorTheme}
             />
           </div>
-          <div
+          <StatusBar
             ref={statusBarRef}
-            className={`bg:white dark:bg-black text-foreground border-t border px-3 py-1 text-xs flex items-center justify-between`}
-          >
-            <div className="flex items-center gap-4">
-              {jsonValue.trim() && (
-                <span className={`font-medium flex items-center gap-1`}>
-                  {isValid ? <Check size={12} /> : <X size={12} />}
-                  {isValid ? "Valid JSON" : "Invalid JSON"}
-                </span>
-              )}
-              {!isValid && error && (
-                <span className="truncate max-w-xs" title={error}>
-                  {error}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              <span>Lines: {stats.lines}</span>
-              <span>Characters: {stats.characters}</span>
-              <span>Size: {stats.size} bytes</span>
-            </div>
-          </div>
+            isValid={isValid}
+            error={error}
+            stats={stats}
+            hasContent={!!jsonValue.trim()}
+          />
         </div>
-      </div>
+      ),
+    },
+  ];
+
+  if (isValid && parsedJson) {
+    tabs.push({
+      id: "tree",
+      label: "Tree View",
+      content: (
+        <div className="border flex flex-col h-full bg-white dark:bg-black">
+          <JSONTreeViewer
+            data={parsedJson}
+            className="flex-1 min-h-0"
+            editorTheme={editorTheme}
+          />
+          <StatusBar
+            ref={statusBarRef}
+            isValid={isValid}
+            error={error}
+            stats={stats}
+            hasContent={!!jsonValue.trim()}
+          />
+        </div>
+      ),
+    });
+  }
+
+  const activeTabContent = tabs.find((tab) => tab.id === activeTab)?.content;
+
+  return (
+    <div className="h-screen flex flex-col">
+      <Header
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        actions={
+          <JSONActions
+            onFormat={formatJson}
+            onMinify={minifyJson}
+            onCopy={copyToClipboard}
+            onClear={clearEditor}
+            hasContent={!!jsonValue.trim()}
+            isValid={isValid}
+            isVisible={activeTab === "editor"}
+          />
+        }
+      />
+      <div className="flex-1 min-h-0 overflow-hidden">{activeTabContent}</div>
     </div>
   );
 }
