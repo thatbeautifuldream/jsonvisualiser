@@ -3,14 +3,16 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import Editor, { type Monaco } from "@monaco-editor/react";
-import { Copy, FileText, Zap } from "lucide-react";
 import type { editor } from "monaco-editor";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Check, X } from "lucide-react";
 
 export function JsonViewer() {
-  const [editorTheme, setEditorTheme] = useState<"light" | "hc-black">("hc-black");
+  const [editorTheme, setEditorTheme] = useState<"light" | "hc-black">(
+    "hc-black"
+  );
   const [jsonValue, setJsonValue] = useState("");
   const [isValid, setIsValid] = useState(true);
   const [error, setError] = useState<string>("");
@@ -35,6 +37,23 @@ export function JsonViewer() {
     });
   }, []);
 
+  const validateJson = useCallback((value: string) => {
+    if (!value.trim()) {
+      setIsValid(true);
+      setError("");
+      return;
+    }
+
+    try {
+      JSON.parse(value);
+      setIsValid(true);
+      setError("");
+    } catch (err) {
+      setIsValid(false);
+      setError(err instanceof Error ? err.message : "Invalid JSON");
+    }
+  }, []);
+
   const updateErrorFromMarkers = useCallback(() => {
     const model = editorRef.current?.getModel();
     if (!model || !monacoRef.current) {
@@ -50,19 +69,19 @@ export function JsonViewer() {
       setIsValid(false);
       setError(markers[0].message);
     } else {
-      setIsValid(true);
-      setError("");
+      const currentValue = model.getValue();
+      validateJson(currentValue);
     }
-  }, []);
+  }, [validateJson]);
 
   const handleEditorChange = useCallback(
     (value: string | undefined) => {
       const newValue = value || "";
       setJsonValue(newValue);
       updateStats();
-      updateErrorFromMarkers();
+      validateJson(newValue);
     },
-    [updateStats, updateErrorFromMarkers]
+    [updateStats, validateJson]
   );
 
   const handleEditorDidMount = useCallback(
@@ -82,10 +101,11 @@ export function JsonViewer() {
         updateErrorFromMarkers();
       });
 
-      // Initial stats update
+      // Initial stats and validation update
       updateStats();
+      validateJson(editor.getValue());
     },
-    [updateErrorFromMarkers, updateStats]
+    [updateErrorFromMarkers, updateStats, validateJson]
   );
 
   const formatJson = useCallback(() => {
@@ -107,9 +127,7 @@ export function JsonViewer() {
       editorRef.current.setValue(minified);
       setJsonValue(minified);
     } catch (err) {
-      toast("Failed to minify JSON", {
-        description: "Please ensure the JSON is valid before minifying.",
-      });
+      toast.error("Failed to minify JSON");
       console.error("Minification error:", err);
     }
   }, [isValid]);
@@ -120,13 +138,9 @@ export function JsonViewer() {
     try {
       const value = editorRef.current.getValue();
       await navigator.clipboard.writeText(value);
-      toast("Copied to Clipboard", {
-        description: "JSON content has been copied to your clipboard",
-      });
+      toast.success("Copied to Clipboard");
     } catch (err) {
-      toast("Failed to copy to clipboard", {
-        description: "Please try again or copy manually.",
-      });
+      toast.error("Failed to copy to clipboard");
     }
   }, []);
 
@@ -135,6 +149,8 @@ export function JsonViewer() {
 
     editorRef.current.setValue("");
     setJsonValue("");
+    setIsValid(true);
+    setError("");
   }, []);
 
   useEffect(() => {
@@ -161,34 +177,49 @@ export function JsonViewer() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between p-3 border-b flex-shrink-0">
-        <h1 className="text-xl font-medium">JSON Visualiser</h1>
-        <div className="flex items-center gap-3">
-          <div className="flex flex-wrap items-center justify-between gap-4 flex-shrink-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <Button onClick={formatJson} size="sm" variant="outline">
-                <FileText className="w-4 h-4 mr-2" />
+      <div className="flex items-center justify-between px-3 py-1 border-b flex-shrink-0 text-xs">
+        <h1 className="text-xs font-medium">JSON Visualiser</h1>
+        <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
+            <div className="flex flex-wrap items-center gap-1">
+              <Button
+                onClick={formatJson}
+                className="text-xs"
+                disabled={!jsonValue.trim()}
+                size="sm"
+                variant="outline"
+              >
                 Format
               </Button>
               <Button
                 onClick={minifyJson}
-                disabled={!isValid}
+                className="text-xs"
+                disabled={!isValid || !jsonValue.trim()}
                 size="sm"
                 variant="outline"
               >
-                <Zap className="w-4 h-4 mr-2" />
                 Minify
               </Button>
-              <Button onClick={copyToClipboard} size="sm" variant="outline">
-                <Copy className="w-4 h-4 mr-2" />
+              <Button
+                onClick={copyToClipboard}
+                className="text-xs"
+                disabled={!jsonValue.trim()}
+                size="sm"
+                variant="outline"
+              >
                 Copy
               </Button>
-              <Button onClick={clearEditor} size="sm" variant="outline">
+              <Button
+                onClick={clearEditor}
+                className="text-xs"
+                disabled={!jsonValue.trim()}
+                size="sm"
+                variant="outline"
+              >
                 Clear
               </Button>
             </div>
-
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <ModeToggle />
             </div>
           </div>
@@ -223,22 +254,17 @@ export function JsonViewer() {
           </div>
           <div
             ref={statusBarRef}
-            className={`border-t px-3 py-1 text-xs flex items-center justify-between ${
-              editorTheme === "hc-black"
-                ? "bg-black text-white border-gray-600"
-                : "bg-gray-50 text-gray-600 border-gray-200"
-            }`}
+            className={`bg:white dark:bg-black text-foreground border-t border px-3 py-1 text-xs flex items-center justify-between`}
           >
             <div className="flex items-center gap-4">
-              <span
-                className={`font-medium ${
-                  isValid ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {isValid ? "✓ Valid JSON" : "✗ Invalid JSON"}
-              </span>
+              {jsonValue.trim() && (
+                <span className={`font-medium flex items-center gap-1`}>
+                  {isValid ? <Check size={12} /> : <X size={12} />}
+                  {isValid ? "Valid JSON" : "Invalid JSON"}
+                </span>
+              )}
               {!isValid && error && (
-                <span className="text-red-500 truncate max-w-xs" title={error}>
+                <span className="truncate max-w-xs" title={error}>
                   {error}
                 </span>
               )}
