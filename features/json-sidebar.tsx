@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useJsonStore, type JsonFile } from "@/stores/store";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Menu, MoreVertical, Edit2, Trash2, Check, X } from "lucide-react";
 import { useState } from "react";
 
@@ -207,6 +208,13 @@ export function JsonSidebar({ onFileSelect, onNewFile }: JsonSidebarProps) {
                                 ))}
                         </div>
                     )}
+                </div>
+
+                {/* Theme Switcher at the bottom */}
+                <div className="p-3 border-t bg-muted/20">
+                    <div className="flex items-center justify-end">
+                        <ThemeSwitcher />
+                    </div>
                 </div>
             </SheetContent>
         </Sheet>

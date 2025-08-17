@@ -1,6 +1,5 @@
 "use client";
 
-import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 
 type TTab = {
@@ -79,9 +78,6 @@ export function Header({
       <div className="flex items-center gap-2 px-3 py-1">
         <div className="flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
           {actions}
-          <div className="flex items-center gap-1">
-            <ModeToggle />
-          </div>
         </div>
       </div>
     </div>
