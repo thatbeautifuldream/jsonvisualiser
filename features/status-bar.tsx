@@ -3,7 +3,7 @@
 import { Check, X } from "lucide-react";
 import { forwardRef } from "react";
 import NumberFlow from '@number-flow/react'
-
+import { type JsonStats } from "@/stores/store";
 
 const formatSize = (bytes: number): { number: number; unit: string } => {
   if (bytes === 0) return { number: 0, unit: "B" };
@@ -16,16 +16,10 @@ const formatSize = (bytes: number): { number: number; unit: string } => {
   };
 };
 
-type TStats = {
-  lines: number;
-  characters: number;
-  size: number;
-};
-
 type TStatusBarProps = {
   isValid: boolean;
   error: string;
-  stats: TStats;
+  stats: JsonStats;
   hasContent: boolean;
 };
 

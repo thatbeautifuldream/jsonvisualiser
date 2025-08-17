@@ -10,6 +10,7 @@ import { useJsonStore, type JsonFile } from "@/stores/store";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Menu, MoreVertical, Edit2, Trash2, Check, X } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface JsonSidebarProps {
     onFileSelect?: (file: JsonFile) => void;
@@ -35,6 +36,7 @@ export function JsonSidebar({ onFileSelect, onNewFile }: JsonSidebarProps) {
 
     const handleDeleteFile = (file: JsonFile) => {
         deleteFile(file.id);
+        toast.success(`File "${file.name}" deleted.`);
     };
 
     const handleEditFile = (file: JsonFile) => {
@@ -102,7 +104,7 @@ export function JsonSidebar({ onFileSelect, onNewFile }: JsonSidebarProps) {
                             <p className="text-xs opacity-60">Create a new file to start</p>
                         </div>
                     ) : (
-                        <div className="overflow-y-auto h-full">
+                        <div className="overflow-y-auto h-full scrollbar-hide">
                             {jsonFiles
                                 .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
                                 .map((file) => (

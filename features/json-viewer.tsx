@@ -15,114 +15,57 @@ import { useJsonStore, type JsonFile } from "@/stores/store";
 
 type TEditorTheme = "light" | "hc-black";
 
-type TStats = {
-  lines: number;
-  characters: number;
-  size: number;
-};
-
-
 export function JsonViewer() {
   const [editorTheme, setEditorTheme] = useState<TEditorTheme>("hc-black");
-  const [jsonValue, setJsonValue] = useState("");
-  const [isValid, setIsValid] = useState(true);
-  const [error, setError] = useState<string>("");
-  const [stats, setStats] = useState<TStats>({ lines: 0, characters: 0, size: 0 });
-  const [parsedJson, setParsedJson] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("editor");
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
 
   const { theme: appTheme } = useTheme();
-  const { activeFileId, getActiveFile, loadFile, saveFile, createNewFile, clearActiveFile } = useJsonStore();
+  const {
+    activeFileId,
+    getActiveFile,
+    getActiveFileContent,
+    getValidation,
+    getStats,
+    hasActiveFile,
+    hasContent,
+    loadFile,
+    saveFile,
+    createNewFile,
+    clearActiveFile,
+    initializeApp,
+    ensureActiveFile
+  } = useJsonStore();
 
-  // Get the current active file
+  // Get all data from store (single source of truth)
   const activeFile = getActiveFile();
+  const content = getActiveFileContent();
+  const validation = getValidation();
+  const stats = getStats();
+  const isValid = validation.isValid;
+  const error = validation.error;
+  const parsedJson = validation.parsedJson;
+  const hasFileContent = hasContent();
 
-  // Load active file content when it changes
+  // Sync editor with store content when it changes
   useEffect(() => {
-    if (activeFile && activeFile.content !== jsonValue) {
-      setJsonValue(activeFile.content);
-      if (editorRef.current) {
-        editorRef.current.setValue(activeFile.content);
-      }
-    } else if (!activeFile && jsonValue) {
-      // Clear editor if no active file
-      setJsonValue("");
-      if (editorRef.current) {
-        editorRef.current.setValue("");
-      }
+    if (editorRef.current && editorRef.current.getValue() !== content) {
+      editorRef.current.setValue(content);
     }
-  }, [activeFile, jsonValue]);
-
-  const updateStats = useCallback(() => {
-    const model = editorRef.current?.getModel();
-    if (!model) {
-      setStats({ lines: 0, characters: 0, size: 0 });
-      return;
-    }
-
-    setStats({
-      lines: model.getLineCount(),
-      characters: model.getValueLength(),
-      size: new Blob([model.getValue()]).size,
-    });
-  }, []);
-
-  const validateJson = useCallback((value: string) => {
-    if (!value.trim()) {
-      setIsValid(true);
-      setError("");
-      setParsedJson(null);
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(value);
-      setIsValid(true);
-      setError("");
-      setParsedJson(parsed);
-    } catch (err) {
-      setIsValid(false);
-      setError(err instanceof Error ? err.message : "Invalid JSON");
-      setParsedJson(null);
-    }
-  }, []);
-
-  const updateErrorFromMarkers = useCallback(() => {
-    const model = editorRef.current?.getModel();
-    if (!model || !monacoRef.current) {
-      setIsValid(true);
-      setError("");
-      return;
-    }
-
-    const markers = monacoRef.current.editor.getModelMarkers({
-      resource: model.uri,
-    });
-    if (markers?.length) {
-      setIsValid(false);
-      setError(markers[0].message);
-    } else {
-      const currentValue = model.getValue();
-      validateJson(currentValue);
-    }
-  }, [validateJson]);
+  }, [content]);
 
   const handleEditorChange = useCallback(
     (value: string | undefined) => {
       const newValue = value || "";
-      setJsonValue(newValue);
-      updateStats();
-      validateJson(newValue);
 
-      // Simple auto-save: if we have an active file, save to it
+      // Save directly to store if we have an active file
       if (activeFileId) {
         saveFile(activeFileId, newValue);
       }
     },
-    [updateStats, validateJson, activeFileId, saveFile]
+    [activeFileId, saveFile]
   );
 
   const handleEditorDidMount = useCallback(
@@ -159,17 +102,8 @@ export function JsonViewer() {
           editor.getAction("editor.unfoldAll")?.run();
         }
       );
-
-      // Listen for marker changes to update validation state
-      monaco.editor.onDidChangeMarkers(() => {
-        updateErrorFromMarkers();
-      });
-
-      // Initial stats and validation update
-      updateStats();
-      validateJson(editor.getValue());
     },
-    [updateErrorFromMarkers, updateStats, validateJson]
+    []
   );
 
   const formatJson = useCallback(() => {
@@ -189,12 +123,16 @@ export function JsonViewer() {
       const parsed = JSON.parse(currentValue);
       const minified = JSON.stringify(parsed);
       editorRef.current.setValue(minified);
-      setJsonValue(minified);
+
+      // Save minified content to store
+      if (activeFileId) {
+        saveFile(activeFileId, minified);
+      }
     } catch (err) {
       toast.error("Failed to minify JSON");
       console.error("Minification error:", err);
     }
-  }, [isValid]);
+  }, [isValid, activeFileId, saveFile]);
 
   const copyToClipboard = useCallback(async () => {
     if (!editorRef.current) return;
@@ -211,12 +149,11 @@ export function JsonViewer() {
   const clearEditor = useCallback(() => {
     if (!editorRef.current) return;
 
-    editorRef.current.setValue("");
-    setJsonValue("");
-    setIsValid(true);
-    setError("");
-    setParsedJson(null);
-  }, []);
+    // Clear the active file content by saving empty string
+    if (activeFileId) {
+      saveFile(activeFileId, "");
+    }
+  }, [activeFileId, saveFile]);
 
   const handleFileSelect = useCallback((file: JsonFile) => {
     loadFile(file.id);
@@ -249,6 +186,16 @@ export function JsonViewer() {
     };
   }, [formatJson]);
 
+  // Initialize app on mount: load most recent file or create new one
+  useEffect(() => {
+    initializeApp();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Safeguard: ensure we always have an active file
+  useEffect(() => {
+    ensureActiveFile();
+  }, [activeFileId, ensureActiveFile]);
+
   const tabs = [
     {
       id: "editor",
@@ -257,7 +204,7 @@ export function JsonViewer() {
         <div className="border flex flex-col h-full">
           <div className="flex-1 min-h-0">
             <JSONEditor
-              value={jsonValue}
+              value={content}
               onChange={handleEditorChange}
               onMount={handleEditorDidMount}
               theme={editorTheme}
@@ -268,14 +215,15 @@ export function JsonViewer() {
             isValid={isValid}
             error={error}
             stats={stats}
-            hasContent={!!jsonValue.trim()}
+            hasContent={hasFileContent}
           />
         </div>
       ),
     },
   ];
 
-  if (isValid && parsedJson) {
+  // Only show tree view if we have valid JSON and content
+  if (isValid && parsedJson && hasFileContent) {
     tabs.push({
       id: "tree",
       label: "Tree View",
@@ -291,7 +239,7 @@ export function JsonViewer() {
             isValid={isValid}
             error={error}
             stats={stats}
-            hasContent={!!jsonValue.trim()}
+            hasContent={hasFileContent}
           />
         </div>
       ),
@@ -318,7 +266,7 @@ export function JsonViewer() {
             onMinify={minifyJson}
             onCopy={copyToClipboard}
             onClear={clearEditor}
-            hasContent={!!jsonValue.trim()}
+            hasContent={hasFileContent}
             isValid={isValid}
             isVisible={activeTab === "editor"}
           />
