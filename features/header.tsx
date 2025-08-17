@@ -11,6 +11,7 @@ type TTab = {
 
 type THeaderProps = {
   actions?: React.ReactNode;
+  leftActions?: React.ReactNode;
   className?: string;
   tabs?: TTab[];
   activeTab?: string;
@@ -19,6 +20,7 @@ type THeaderProps = {
 
 export function Header({
   actions,
+  leftActions,
   className = "",
   tabs,
   activeTab,
@@ -32,7 +34,12 @@ export function Header({
         className
       )}
     >
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
+        {leftActions && (
+          <div className="px-3 py-1">
+            {leftActions}
+          </div>
+        )}
         {tabs && tabs.length > 0 && (
           <div className="flex">
             {tabs.map((tab) => (

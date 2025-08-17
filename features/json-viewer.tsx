@@ -10,6 +10,8 @@ import { JSONActions } from "./json-actions";
 import { JSONEditor } from "./json-editor";
 import { JSONTreeViewer } from "./json-tree-viewer";
 import { StatusBar } from "./status-bar";
+import { JsonSidebar } from "./json-sidebar";
+import { useJsonStore, type JsonFile } from "@/stores/store";
 
 type TEditorTheme = "light" | "hc-black";
 
@@ -33,6 +35,17 @@ export function JsonViewer() {
   const statusBarRef = useRef<HTMLDivElement>(null);
 
   const { theme: appTheme } = useTheme();
+  const { currentFile, updateCurrentFileContent } = useJsonStore();
+
+  // Load current file content when it changes
+  useEffect(() => {
+    if (currentFile && currentFile.content !== jsonValue) {
+      setJsonValue(currentFile.content);
+      if (editorRef.current) {
+        editorRef.current.setValue(currentFile.content);
+      }
+    }
+  }, [currentFile]);
 
   const updateStats = useCallback(() => {
     const model = editorRef.current?.getModel();
@@ -94,8 +107,13 @@ export function JsonViewer() {
       setJsonValue(newValue);
       updateStats();
       validateJson(newValue);
+
+      // Update the current file content if there's a file loaded
+      if (currentFile) {
+        updateCurrentFileContent(newValue);
+      }
     },
-    [updateStats, validateJson]
+    [updateStats, validateJson, currentFile, updateCurrentFileContent]
   );
 
   const handleEditorDidMount = useCallback(
@@ -191,6 +209,14 @@ export function JsonViewer() {
     setParsedJson(null);
   }, []);
 
+  const handleFileSelect = useCallback((file: JsonFile) => {
+    // The store will update currentFile, and useEffect will handle loading the content
+  }, []);
+
+  const handleNewFile = useCallback(() => {
+    clearEditor();
+  }, [clearEditor]);
+
   useEffect(() => {
     if (appTheme === "dark") {
       setEditorTheme("hc-black");
@@ -270,6 +296,12 @@ export function JsonViewer() {
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        leftActions={
+          <JsonSidebar
+            onFileSelect={handleFileSelect}
+            onNewFile={handleNewFile}
+          />
+        }
         actions={
           <JSONActions
             onFormat={formatJson}
