@@ -35,17 +35,26 @@ export function JsonViewer() {
   const statusBarRef = useRef<HTMLDivElement>(null);
 
   const { theme: appTheme } = useTheme();
-  const { currentFile, updateCurrentFileContent } = useJsonStore();
+  const { activeFileId, getActiveFile, loadFile, saveFile, createNewFile, clearActiveFile } = useJsonStore();
 
-  // Load current file content when it changes
+  // Get the current active file
+  const activeFile = getActiveFile();
+
+  // Load active file content when it changes
   useEffect(() => {
-    if (currentFile && currentFile.content !== jsonValue) {
-      setJsonValue(currentFile.content);
+    if (activeFile && activeFile.content !== jsonValue) {
+      setJsonValue(activeFile.content);
       if (editorRef.current) {
-        editorRef.current.setValue(currentFile.content);
+        editorRef.current.setValue(activeFile.content);
+      }
+    } else if (!activeFile && jsonValue) {
+      // Clear editor if no active file
+      setJsonValue("");
+      if (editorRef.current) {
+        editorRef.current.setValue("");
       }
     }
-  }, [currentFile]);
+  }, [activeFile, jsonValue]);
 
   const updateStats = useCallback(() => {
     const model = editorRef.current?.getModel();
@@ -108,12 +117,12 @@ export function JsonViewer() {
       updateStats();
       validateJson(newValue);
 
-      // Update the current file content if there's a file loaded
-      if (currentFile) {
-        updateCurrentFileContent(newValue);
+      // Simple auto-save: if we have an active file, save to it
+      if (activeFileId) {
+        saveFile(activeFileId, newValue);
       }
     },
-    [updateStats, validateJson, currentFile, updateCurrentFileContent]
+    [updateStats, validateJson, activeFileId, saveFile]
   );
 
   const handleEditorDidMount = useCallback(
@@ -210,12 +219,13 @@ export function JsonViewer() {
   }, []);
 
   const handleFileSelect = useCallback((file: JsonFile) => {
-    // The store will update currentFile, and useEffect will handle loading the content
-  }, []);
+    loadFile(file.id);
+  }, [loadFile]);
 
   const handleNewFile = useCallback(() => {
-    clearEditor();
-  }, [clearEditor]);
+    const newFileId = createNewFile();
+    // The new file is automatically set as active in the store
+  }, [createNewFile]);
 
   useEffect(() => {
     if (appTheme === "dark") {

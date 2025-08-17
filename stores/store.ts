@@ -4,15 +4,12 @@ import { get, set, del } from 'idb-keyval'
 
 const storage: StateStorage = {
     getItem: async (name: string): Promise<string | null> => {
-        console.log(name, 'has been retrieved')
         return (await get(name)) || null
     },
     setItem: async (name: string, value: string): Promise<void> => {
-        console.log(name, 'with value', value, 'has been saved')
         await set(name, value)
     },
     removeItem: async (name: string): Promise<void> => {
-        console.log(name, 'has been deleted')
         await del(name)
     },
 }
@@ -28,16 +25,17 @@ export interface JsonFile {
 
 export interface JsonStore {
     jsonFiles: JsonFile[]
-    currentFile: JsonFile | null
+    activeFileId: string | null
 
     // Actions
     createNewFile: () => string
-    loadJsonFile: (id: string) => void
-    deleteJsonFile: (id: string) => void
-    renameJsonFile: (id: string, newName: string) => void
-    updateCurrentFileContent: (content: string) => void
+    loadFile: (id: string) => void
+    saveFile: (id: string, content: string) => void
+    deleteFile: (id: string) => void
+    renameFile: (id: string, newName: string) => void
+    clearActiveFile: () => void
+    getActiveFile: () => JsonFile | null
     getAllFiles: () => JsonFile[]
-    getFileById: (id: string) => JsonFile | undefined
 }
 
 const generateFileName = () => {
@@ -57,7 +55,7 @@ export const useJsonStore = create<JsonStore>()(
     persist(
         (set, get) => ({
             jsonFiles: [],
-            currentFile: null,
+            activeFileId: null,
 
             createNewFile: () => {
                 const now = new Date()
@@ -74,27 +72,40 @@ export const useJsonStore = create<JsonStore>()(
 
                 set((state) => ({
                     jsonFiles: [...state.jsonFiles, newFile],
-                    currentFile: newFile,
+                    activeFileId: newFile.id,
                 }))
 
                 return newFile.id
             },
 
-            loadJsonFile: (id: string) => {
-                const file = get().jsonFiles.find((f) => f.id === id)
-                if (file) {
-                    set({ currentFile: file })
+            loadFile: (id: string) => {
+                const fileExists = get().jsonFiles.some(f => f.id === id)
+                if (fileExists) {
+                    set({ activeFileId: id })
                 }
             },
 
-            deleteJsonFile: (id: string) => {
+            saveFile: (id: string, content: string) => {
+                const now = new Date()
+                const size = new Blob([content]).size
+
                 set((state) => ({
-                    jsonFiles: state.jsonFiles.filter((file) => file.id !== id),
-                    currentFile: state.currentFile?.id === id ? null : state.currentFile,
+                    jsonFiles: state.jsonFiles.map((file) =>
+                        file.id === id
+                            ? { ...file, content, updatedAt: now, size }
+                            : file
+                    ),
                 }))
             },
 
-            renameJsonFile: (id: string, newName: string) => {
+            deleteFile: (id: string) => {
+                set((state) => ({
+                    jsonFiles: state.jsonFiles.filter((file) => file.id !== id),
+                    activeFileId: state.activeFileId === id ? null : state.activeFileId,
+                }))
+            },
+
+            renameFile: (id: string, newName: string) => {
                 const now = new Date()
                 set((state) => ({
                     jsonFiles: state.jsonFiles.map((file) =>
@@ -102,50 +113,19 @@ export const useJsonStore = create<JsonStore>()(
                             ? { ...file, name: newName, updatedAt: now }
                             : file
                     ),
-                    currentFile: state.currentFile?.id === id
-                        ? { ...state.currentFile, name: newName, updatedAt: now }
-                        : state.currentFile
                 }))
             },
 
-            updateCurrentFileContent: (content: string) => {
-                const currentFile = get().currentFile
-                if (!currentFile) {
-                    // Auto-create a new file if none exists
-                    const newFileId = get().createNewFile()
-                    const newFile = get().jsonFiles.find(f => f.id === newFileId)
-                    if (newFile) {
-                        const now = new Date()
-                        const size = new Blob([content]).size
+            clearActiveFile: () => {
+                set({ activeFileId: null })
+            },
 
-                        set((state) => ({
-                            jsonFiles: state.jsonFiles.map((file) =>
-                                file.id === newFileId
-                                    ? { ...file, content, updatedAt: now, size }
-                                    : file
-                            ),
-                            currentFile: { ...newFile, content, updatedAt: now, size },
-                        }))
-                    }
-                } else {
-                    // Update existing file
-                    const now = new Date()
-                    const size = new Blob([content]).size
-
-                    set((state) => ({
-                        jsonFiles: state.jsonFiles.map((file) =>
-                            file.id === currentFile.id
-                                ? { ...file, content, updatedAt: now, size }
-                                : file
-                        ),
-                        currentFile: { ...currentFile, content, updatedAt: now, size },
-                    }))
-                }
+            getActiveFile: () => {
+                const activeId = get().activeFileId
+                return activeId ? get().jsonFiles.find(f => f.id === activeId) || null : null
             },
 
             getAllFiles: () => get().jsonFiles,
-
-            getFileById: (id: string) => get().jsonFiles.find((f) => f.id === id),
         }),
         {
             name: 'json-store',

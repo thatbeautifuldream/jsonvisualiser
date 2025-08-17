@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useJsonStore, type JsonFile } from "@/stores/store";
 import { Menu, MoreVertical, Edit2, Trash2, Check, X } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 interface JsonSidebarProps {
     onFileSelect?: (file: JsonFile) => void;
@@ -16,25 +16,24 @@ interface JsonSidebarProps {
 }
 
 export function JsonSidebar({ onFileSelect, onNewFile }: JsonSidebarProps) {
-    const { jsonFiles, currentFile, createNewFile, loadJsonFile, deleteJsonFile, renameJsonFile } = useJsonStore();
+    const { jsonFiles, activeFileId, loadFile, deleteFile, renameFile } = useJsonStore();
     const [isOpen, setIsOpen] = useState(false);
     const [editingFileId, setEditingFileId] = useState<string | null>(null);
     const [editingName, setEditingName] = useState("");
 
     const handleFileSelect = (file: JsonFile) => {
-        loadJsonFile(file.id);
+        loadFile(file.id);
         onFileSelect?.(file);
         setIsOpen(false);
     };
 
     const handleNewFile = () => {
-        createNewFile();
         onNewFile?.();
         setIsOpen(false);
     };
 
     const handleDeleteFile = (file: JsonFile) => {
-        deleteJsonFile(file.id);
+        deleteFile(file.id);
     };
 
     const handleEditFile = (file: JsonFile) => {
@@ -44,7 +43,7 @@ export function JsonSidebar({ onFileSelect, onNewFile }: JsonSidebarProps) {
 
     const handleSaveEdit = (fileId: string) => {
         if (editingName.trim()) {
-            renameJsonFile(fileId, editingName.trim());
+            renameFile(fileId, editingName.trim());
         }
         setEditingFileId(null);
         setEditingName("");
@@ -56,9 +55,10 @@ export function JsonSidebar({ onFileSelect, onNewFile }: JsonSidebarProps) {
     };
 
     const formatFileSize = (bytes: number) => {
-        if (bytes < 1024) return `${bytes}B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
-        return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
     };
 
     const formatDate = (date: Date) => {
@@ -110,7 +110,7 @@ export function JsonSidebar({ onFileSelect, onNewFile }: JsonSidebarProps) {
                                         className={cn(
                                             "group relative flex items-center p-3 cursor-pointer transition-all duration-150",
                                             "border-b border-border/30 hover:bg-accent/40",
-                                            currentFile?.id === file.id && "bg-accent border-l-2 border-l-primary"
+                                            activeFileId === file.id && "bg-accent border-l-2 border-l-primary"
                                         )}
                                         onClick={() => handleFileSelect(file)}
                                     >
@@ -156,12 +156,12 @@ export function JsonSidebar({ onFileSelect, onNewFile }: JsonSidebarProps) {
                                                 <>
                                                     <div className={cn(
                                                         "font-medium text-sm truncate mb-1",
-                                                        currentFile?.id === file.id && "text-foreground"
+                                                        activeFileId === file.id && "text-foreground"
                                                     )}>
                                                         {file.name}
                                                     </div>
                                                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                                        <span className="font-mono">{formatFileSize(file.size)}</span>
+                                                        <Badge variant={activeFileId === file.id ? "default" : "outline"} className="font-mono">{formatFileSize(file.size)}</Badge>
                                                         <span>{formatDate(file.updatedAt)}</span>
                                                     </div>
                                                 </>
