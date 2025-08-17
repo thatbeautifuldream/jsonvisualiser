@@ -82,9 +82,6 @@ export function JSONTreeViewer({
         getItemString={(type, data, itemType, itemString) => (
           <span
             className="opacity-75"
-            style={{
-              fontFamily: "Menlo",
-            }}
           >
             {itemType} {itemString}
           </span>
@@ -92,9 +89,6 @@ export function JSONTreeViewer({
         labelRenderer={([key, ...keyPath]) => (
           <strong
             className="text-sm"
-            style={{
-              fontFamily: "Menlo",
-            }}
           >
             {key}:
           </strong>
@@ -102,9 +96,6 @@ export function JSONTreeViewer({
         valueRenderer={(raw, value) => (
           <span
             className="text-sm"
-            style={{
-              fontFamily: "Menlo",
-            }}
           >
             {String(raw)}
           </span>
