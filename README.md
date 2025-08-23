@@ -1,4 +1,4 @@
-# 🌱 JSON Visualizer
+# 🚧 JSON Visualizer
 
 A modern, interactive web application for visualizing and working with JSON data. Built with Next.js, TypeScript, and cutting-edge browser technologies.
 
