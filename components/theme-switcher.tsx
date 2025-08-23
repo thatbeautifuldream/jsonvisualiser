@@ -20,7 +20,7 @@ const themes = [
     },
 ];
 
-export type ThemeSwitcherProps = {
+type TThemeSwitcherProps = {
     value?: 'light' | 'dark';
     onChange?: (theme: 'light' | 'dark') => void;
     defaultValue?: 'light' | 'dark';
@@ -32,7 +32,7 @@ export const ThemeSwitcher = ({
     onChange,
     defaultValue = 'dark',
     className,
-}: ThemeSwitcherProps) => {
+}: TThemeSwitcherProps) => {
     const { theme: currentTheme, setTheme } = useTheme();
     const [theme, setInternalTheme] = useControllableState({
         defaultProp: defaultValue,

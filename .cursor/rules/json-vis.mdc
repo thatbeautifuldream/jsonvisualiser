@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.tsx,*.ts
+alwaysApply: true
+---
+
+- Always prefix typescript type names with “T” like `type TValue = { value: number }`.
+- Use nuqs to manage query-parameter state; adopt it wherever it adds value.
+- Use `createWithEqualityFn` with shallow equality in Zustand whenever it helps reduce re-renders.
