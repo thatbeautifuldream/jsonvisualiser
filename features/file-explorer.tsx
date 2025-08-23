@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/a11y/useSemanticElements: its ok */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -11,14 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useJsonStore, type JsonFile } from "@/stores/json-document-store";
+import { useJsonStore, type TJsonFile } from "@/stores/json-document-store";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Menu, MoreVertical, Edit2, Trash2, Check, X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 interface FileExplorerProps {
-	onFileSelect?: (file: JsonFile) => void;
+	onFileSelect?: (file: TJsonFile) => void;
 	onNewFile?: () => void;
 }
 
@@ -29,7 +30,7 @@ export function FileExplorer({ onFileSelect, onNewFile }: FileExplorerProps) {
 	const [editingFileId, setEditingFileId] = useState<string | null>(null);
 	const [editingName, setEditingName] = useState("");
 
-	const handleFileSelect = async (file: JsonFile) => {
+	const handleFileSelect = async (file: TJsonFile) => {
 		await loadFile(file.id);
 		onFileSelect?.(file);
 		setIsOpen(false);
@@ -40,12 +41,12 @@ export function FileExplorer({ onFileSelect, onNewFile }: FileExplorerProps) {
 		setIsOpen(false);
 	};
 
-	const handleDeleteFile = async (file: JsonFile) => {
+	const handleDeleteFile = async (file: TJsonFile) => {
 		await deleteFile(file.id);
 		toast.success(`File "${file.name}" deleted.`);
 	};
 
-	const handleEditFile = (file: JsonFile) => {
+	const handleEditFile = (file: TJsonFile) => {
 		setEditingFileId(file.id);
 		setEditingName(file.name);
 	};
@@ -79,6 +80,15 @@ export function FileExplorer({ onFileSelect, onNewFile }: FileExplorerProps) {
 			minute: "2-digit",
 		}).format(new Date(date));
 	};
+
+	const sortedJsonFiles = useMemo(
+		() =>
+			[...jsonFiles].sort(
+				(a, b) =>
+					new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+			),
+		[jsonFiles],
+	);
 
 	return (
 		<Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -116,124 +126,125 @@ export function FileExplorer({ onFileSelect, onNewFile }: FileExplorerProps) {
 						</div>
 					) : (
 						<div className="overflow-y-auto h-full scrollbar-hide">
-							{jsonFiles
-								.sort(
-									(a, b) =>
-										new Date(b.updatedAt).getTime() -
-										new Date(a.updatedAt).getTime(),
-								)
-								.map((file) => (
-									<button
-										type="button"
-										key={file.id}
-										className={cn(
-											"group relative flex items-center p-3 cursor-pointer transition-all duration-150 w-full text-left",
-											"border-b border-border/30 hover:bg-accent/40",
-											activeFileId === file.id &&
-												"bg-accent border-l-2 border-l-primary",
-										)}
-										onClick={() => handleFileSelect(file)}
-									>
-										<div className="flex-1 min-w-0 pr-2">
-											{editingFileId === file.id ? (
-												<div className="space-y-2">
-													<Input
-														value={editingName}
-														onChange={(e) => setEditingName(e.target.value)}
-														className="h-7 text-sm"
-														onKeyDown={(e) => {
-															if (e.key === "Enter") handleSaveEdit(file.id);
-															if (e.key === "Escape") handleCancelEdit();
-														}}
-														onClick={(e) => e.stopPropagation()}
-														autoFocus
-													/>
-													<div className="flex gap-1">
-														<Button
-															size="sm"
-															onClick={(e) => {
-																e.stopPropagation();
-																handleSaveEdit(file.id);
-															}}
-															className="h-6 px-2 text-xs"
-														>
-															<Check className="h-3 w-3" />
-														</Button>
-														<Button
-															size="sm"
-															variant="outline"
-															onClick={(e) => {
-																e.stopPropagation();
-																handleCancelEdit();
-															}}
-															className="h-6 px-2 text-xs"
-														>
-															<X className="h-3 w-3" />
-														</Button>
-													</div>
-												</div>
-											) : (
-												<>
-													<div
-														className={cn(
-															"font-medium text-sm truncate mb-1",
-															activeFileId === file.id && "text-foreground",
-														)}
-													>
-														{file.name}
-													</div>
-													<div className="flex items-center gap-2 text-xs text-muted-foreground">
-														<Badge
-															variant={
-																activeFileId === file.id ? "default" : "outline"
-															}
-															className="font-mono"
-														>
-															{formatFileSize(file.size)}
-														</Badge>
-														<span>{formatDate(file.updatedAt)}</span>
-													</div>
-												</>
-											)}
-										</div>
-
-										{editingFileId !== file.id && (
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
+							{sortedJsonFiles.map((file) => (
+								<div
+									role="button"
+									tabIndex={0}
+									key={file.id}
+									className={cn(
+										"group relative flex items-center p-3 cursor-pointer transition-all duration-150 w-full text-left",
+										"border-b border-border/30 hover:bg-accent/40",
+										activeFileId === file.id &&
+											"bg-accent border-l-2 border-l-primary",
+									)}
+									onClick={() => handleFileSelect(file)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											handleFileSelect(file);
+										}
+									}}
+								>
+									<div className="flex-1 min-w-0 pr-2">
+										{editingFileId === file.id ? (
+											<div className="space-y-2">
+												<Input
+													value={editingName}
+													onChange={(e) => setEditingName(e.target.value)}
+													className="h-7 text-sm"
+													onKeyDown={(e) => {
+														if (e.key === "Enter") handleSaveEdit(file.id);
+														if (e.key === "Escape") handleCancelEdit();
+													}}
+													onClick={(e) => e.stopPropagation()}
+													autoFocus
+												/>
+												<div className="flex gap-1">
 													<Button
-														variant="ghost"
 														size="sm"
-														className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-														onClick={(e) => e.stopPropagation()}
+														onClick={(e) => {
+															e.stopPropagation();
+															handleSaveEdit(file.id);
+														}}
+														className="h-6 px-2 text-xs"
 													>
-														<MoreVertical className="h-3 w-3" />
+														<Check className="h-3 w-3" />
 													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end">
-													<DropdownMenuItem
+													<Button
+														size="sm"
+														variant="outline"
 														onClick={(e) => {
 															e.stopPropagation();
-															handleEditFile(file);
+															handleCancelEdit();
 														}}
+														className="h-6 px-2 text-xs"
 													>
-														<Edit2 className="mr-2 h-3 w-3" />
-														Rename
-													</DropdownMenuItem>
-													<DropdownMenuItem
-														onClick={(e) => {
-															e.stopPropagation();
-															handleDeleteFile(file);
-														}}
-														className="text-destructive focus:text-destructive"
+														<X className="h-3 w-3" />
+													</Button>
+												</div>
+											</div>
+										) : (
+											<>
+												<div
+													className={cn(
+														"font-medium text-sm truncate mb-1",
+														activeFileId === file.id && "text-foreground",
+													)}
+												>
+													{file.name}
+												</div>
+												<div className="flex items-center gap-2 text-xs text-muted-foreground">
+													<Badge
+														variant={
+															activeFileId === file.id ? "default" : "outline"
+														}
+														className="font-mono"
 													>
-														<Trash2 className="mr-2 h-3 w-3" />
-														Delete
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
+														{formatFileSize(file.size)}
+													</Badge>
+													<span>{formatDate(file.updatedAt)}</span>
+												</div>
+											</>
 										)}
-									</button>
-								))}
+									</div>
+
+									{editingFileId !== file.id && (
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button
+													variant="ghost"
+													size="sm"
+													className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+													onClick={(e) => e.stopPropagation()}
+												>
+													<MoreVertical className="h-3 w-3" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem
+													onClick={(e) => {
+														e.stopPropagation();
+														handleEditFile(file);
+													}}
+												>
+													<Edit2 className="mr-2 h-3 w-3" />
+													Rename
+												</DropdownMenuItem>
+												<DropdownMenuItem
+													onClick={(e) => {
+														e.stopPropagation();
+														handleDeleteFile(file);
+													}}
+													className="text-destructive focus:text-destructive"
+												>
+													<Trash2 className="mr-2 h-3 w-3" />
+													Delete
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									)}
+								</div>
+							))}
 						</div>
 					)}
 				</div>

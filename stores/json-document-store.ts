@@ -1,30 +1,32 @@
+"use client";
+
 import { create } from "zustand";
 import { indexedDBService, jsonEventEmitter } from "@/lib/json-storage-service";
 import { toast } from "sonner";
 
-export interface JsonFile {
+export type TJsonFile = {
   id: string;
   name: string;
   content: string;
   createdAt: Date;
   updatedAt: Date;
   size: number;
-}
+};
 
-export interface ValidationResult {
+export type TValidationResult = {
   isValid: boolean;
   error: string;
   parsedJson: unknown;
-}
+};
 
-export interface JsonStats {
+export type TJsonStats = {
   lines: number;
   characters: number;
   size: number;
-}
+};
 
-export interface JsonStore {
-  jsonFiles: JsonFile[];
+export type TJsonStore = {
+  jsonFiles: TJsonFile[];
   activeFileId: string | null;
   isLoading: boolean;
   error?: string;
@@ -39,18 +41,18 @@ export interface JsonStore {
   clearActiveFile: () => void;
   initializeApp: () => Promise<void>;
   ensureActiveFile: () => Promise<void>;
-  searchFiles: (query: string) => Promise<JsonFile[]>;
+  searchFiles: (query: string) => Promise<TJsonFile[]>;
   bulkDeleteFiles: (fileIds: string[]) => Promise<void>;
 
   // Computed getters
-  getActiveFile: () => JsonFile | null;
-  getAllFiles: () => JsonFile[];
+  getActiveFile: () => TJsonFile | null;
+  getAllFiles: () => TJsonFile[];
   getActiveFileContent: () => string;
-  getValidation: () => ValidationResult;
-  getStats: () => JsonStats;
+  getValidation: () => TValidationResult;
+  getStats: () => TJsonStats;
   hasActiveFile: () => boolean;
   hasContent: () => boolean;
-}
+};
 
 const generateFileName = () => {
   const now = new Date();
@@ -78,7 +80,7 @@ function isErrorWithMessage(err: unknown): err is { message: string } {
   );
 }
 
-export const useJsonStore = create<JsonStore>()((set, get) => ({
+export const useJsonStore = create<TJsonStore>()((set, get) => ({
   jsonFiles: [],
   activeFileId: null,
   isLoading: false,
@@ -90,7 +92,7 @@ export const useJsonStore = create<JsonStore>()((set, get) => ({
       const now = new Date();
       const fileName = generateFileName();
 
-      const newFile: JsonFile = {
+      const newFile: TJsonFile = {
         id: crypto.randomUUID(),
         name: fileName,
         content: "",
@@ -390,7 +392,7 @@ export const useJsonStore = create<JsonStore>()((set, get) => ({
     return activeFile ? activeFile.content : "";
   },
 
-  getValidation: (): ValidationResult => {
+  getValidation: (): TValidationResult => {
     const content = get().getActiveFileContent();
 
     if (!content.trim()) {
@@ -417,7 +419,7 @@ export const useJsonStore = create<JsonStore>()((set, get) => ({
     }
   },
 
-  getStats: (): JsonStats => {
+  getStats: (): TJsonStats => {
     const content = get().getActiveFileContent();
     const lines = content ? content.split("\n").length : 0;
     const characters = content.length;

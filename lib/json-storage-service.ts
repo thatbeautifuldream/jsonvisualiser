@@ -1,31 +1,38 @@
 import Dexie, { type Table } from "dexie";
-import type { JsonFile } from "@/stores/json-document-store";
+import type { TJsonFile } from "@/stores/json-document-store";
 
 // Event emitter for JSON file events
-type EventCallback = (...args: unknown[]) => void;
+type TJsonFileEvents = {
+  "file-saved": [fileId: string];
+  "file-deleted": [fileId: string];
+  "file-updated": [fileId: string];
+  "files-bulk-deleted": [fileIds: string[]];
+  "active-file-changed": [fileId: string | null];
+};
 
-class JsonEventEmitter {
-  private events: { [key: string]: EventCallback[] } = {};
+class JsonEventEmitter<E extends Record<string, unknown[]>> {
+  private events: { [K in keyof E]?: Array<(...args: E[K]) => void> } = {};
 
-  on(event: string, callback: EventCallback) {
+  on<K extends keyof E>(event: K, callback: (...args: E[K]) => void) {
     if (!this.events[event]) {
       this.events[event] = [];
     }
-    this.events[event].push(callback);
+    (this.events[event] as Array<(...args: E[K]) => void>).push(callback);
+    return () => this.off(event, callback);
   }
 
-  off(event: string, callback: EventCallback) {
-    if (!this.events[event]) return;
-    this.events[event] = this.events[event].filter((cb) => cb !== callback);
+  off<K extends keyof E>(event: K, callback: (...args: E[K]) => void) {
+    const list = this.events[event];
+    if (!list) return;
+    this.events[event] = list.filter((cb) => cb !== callback);
   }
 
-  emit(event: string, ...args: unknown[]) {
-    if (!this.events[event]) return;
-    this.events[event].forEach((callback) => callback(...args));
+  emit<K extends keyof E>(event: K, ...args: E[K]) {
+    this.events[event]?.forEach((cb) => cb(...args));
   }
 }
 
-export const jsonEventEmitter = new JsonEventEmitter();
+export const jsonEventEmitter = new JsonEventEmitter<TJsonFileEvents>();
 
 export type TStoredJsonFile = {
   id: string;
@@ -53,7 +60,7 @@ class JsonVisualizerDB extends Dexie {
 const db = new JsonVisualizerDB();
 
 class DexieDBService {
-  private convertStoredToJsonFile(stored: TStoredJsonFile): JsonFile {
+  private convertStoredToJsonFile(stored: TStoredJsonFile): TJsonFile {
     return {
       id: stored.id,
       name: stored.name,
@@ -64,7 +71,7 @@ class DexieDBService {
     };
   }
 
-  private convertJsonFileToStored(file: JsonFile): TStoredJsonFile {
+  private convertJsonFileToStored(file: TJsonFile): TStoredJsonFile {
     return {
       id: file.id,
       name: file.name,
@@ -81,7 +88,7 @@ class DexieDBService {
     await db.open();
   }
 
-  async saveFile(file: JsonFile): Promise<void> {
+  async saveFile(file: TJsonFile): Promise<void> {
     try {
       const storedFile = this.convertJsonFileToStored(file);
       await db.jsonFiles.put(storedFile);
@@ -91,7 +98,7 @@ class DexieDBService {
     }
   }
 
-  async getFile(fileId: string): Promise<JsonFile | null> {
+  async getFile(fileId: string): Promise<TJsonFile | null> {
     try {
       const stored = await db.jsonFiles.get(fileId);
       return stored ? this.convertStoredToJsonFile(stored) : null;
@@ -100,7 +107,7 @@ class DexieDBService {
     }
   }
 
-  async getAllFiles(): Promise<JsonFile[]> {
+  async getAllFiles(): Promise<TJsonFile[]> {
     try {
       const storedFiles = await db.jsonFiles
         .orderBy("updatedAt")
@@ -170,7 +177,7 @@ class DexieDBService {
     }
   }
 
-  async searchFiles(query: string): Promise<JsonFile[]> {
+  async searchFiles(query: string): Promise<TJsonFile[]> {
     try {
       const searchTerm = query.toLowerCase();
 

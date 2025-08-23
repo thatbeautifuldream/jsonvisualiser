@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 
-interface EditorToolbarProps {
+type TEditorToolbarProps = {
 	onFormat: () => void;
 	onMinify: () => void;
 	onCopy: () => void;
@@ -11,7 +11,7 @@ interface EditorToolbarProps {
 	isValid: boolean;
 	className?: string;
 	isVisible?: boolean;
-}
+};
 
 export function EditorToolbar({
 	onFormat,
@@ -22,7 +22,7 @@ export function EditorToolbar({
 	isValid,
 	className = "",
 	isVisible = true,
-}: EditorToolbarProps) {
+}: TEditorToolbarProps) {
 	if (!isVisible) return null;
 	return (
 		<div className={`flex flex-wrap items-center gap-1 ${className}`}>
@@ -32,6 +32,7 @@ export function EditorToolbar({
 				disabled={!hasContent}
 				size="xs"
 				variant="ghost"
+				type="button"
 			>
 				Format
 			</Button>
@@ -41,6 +42,7 @@ export function EditorToolbar({
 				disabled={!isValid || !hasContent}
 				size="xs"
 				variant="ghost"
+				type="button"
 			>
 				Minify
 			</Button>
@@ -50,6 +52,7 @@ export function EditorToolbar({
 				disabled={!hasContent}
 				size="xs"
 				variant="ghost"
+				type="button"
 			>
 				Copy
 			</Button>
@@ -59,6 +62,7 @@ export function EditorToolbar({
 				disabled={!hasContent}
 				size="xs"
 				variant="ghost"
+				type="button"
 			>
 				Clear
 			</Button>

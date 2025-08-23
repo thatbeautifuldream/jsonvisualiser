@@ -11,7 +11,7 @@ import { JsonEditor } from "./json-editor";
 import { JsonTreeViewer } from "./json-tree-viewer";
 import { StatusBar } from "./status-bar";
 import { FileExplorer } from "./file-explorer";
-import { useJsonStore, type JsonFile } from "@/stores/json-document-store";
+import { useJsonStore } from "@/stores/json-document-store";
 
 type EditorTheme = "light" | "hc-black";
 
@@ -29,7 +29,6 @@ export function JsonWorkspace() {
 		getValidation,
 		getStats,
 		hasContent,
-		loadFile,
 		saveFile,
 		createNewFile,
 		initializeApp,
@@ -151,12 +150,12 @@ export function JsonWorkspace() {
 		}
 	}, [activeFileId, saveFile]);
 
-	const handleFileSelect = useCallback(
-		async (file: JsonFile) => {
-			await loadFile(file.id);
-		},
-		[loadFile],
-	);
+	const handleFileSelect = useCallback(() => {
+		setActiveTab("editor");
+		if (editorRef.current) {
+			editorRef.current.focus();
+		}
+	}, []);
 
 	const handleNewFile = useCallback(async () => {
 		await createNewFile();

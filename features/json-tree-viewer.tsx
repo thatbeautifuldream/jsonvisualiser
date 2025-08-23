@@ -60,7 +60,7 @@ export function JsonTreeViewer({
 	const isDark = editorTheme ? editorTheme === "hc-black" : theme === "dark";
 	const currentTheme = isDark ? darkTheme : lightTheme;
 
-	if (!data) {
+	if (data === null || data === undefined) {
 		return (
 			<div
 				className={`flex items-center justify-center h-full text-muted-foreground font-mono ${className}`}

@@ -3,7 +3,7 @@
 import { Check, X } from "lucide-react";
 import { forwardRef } from "react";
 import NumberFlow from "@number-flow/react";
-import { type JsonStats } from "@/stores/json-document-store";
+import type { TJsonStats } from "@/stores/json-document-store";
 
 const formatSize = (bytes: number): { number: number; unit: string } => {
 	if (bytes === 0) return { number: 0, unit: "B" };
@@ -11,24 +11,24 @@ const formatSize = (bytes: number): { number: number; unit: string } => {
 	const sizes = ["B", "KB", "MB", "GB"];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
 	return {
-		number: parseFloat((bytes / Math.pow(k, i)).toFixed(1)),
+		number: parseFloat((bytes / k ** i).toFixed(1)),
 		unit: sizes[i],
 	};
 };
 
-interface StatusBarProps {
+type TStatusBarProps = {
 	isValid: boolean;
 	error: string;
-	stats: JsonStats;
+	stats: TJsonStats;
 	hasContent: boolean;
-}
+};
 
-export const StatusBar = forwardRef<HTMLDivElement, StatusBarProps>(
+export const StatusBar = forwardRef<HTMLDivElement, TStatusBarProps>(
 	({ isValid, error, stats, hasContent }, ref) => {
 		return (
 			<div
 				ref={ref}
-				className="bg:white dark:bg-black text-foreground border-t border px-3 py-1 text-xs flex items-center justify-between"
+				className="bg-white dark:bg-black text-foreground border-t border px-3 py-1 text-xs flex items-center justify-between"
 			>
 				<div className="flex items-center gap-4">
 					{hasContent && (
