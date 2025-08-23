@@ -96,16 +96,16 @@ This project is not about reinventing the wheel — it's about understanding how
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/jsonvisualiser.git
+git clone https://github.com/thatbeautifuldream/jsonvisualiser.git
 
 # Install dependencies  
-npm install
+pnpm install
 
 # Start development server
-npm run dev
+pnpm run dev
 
 # Build for production
-npm run build
+pnpm run build
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the application.
