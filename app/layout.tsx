@@ -1,12 +1,12 @@
+import { ClarityProvider } from "@/components/providers/clarity-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToasterProvider } from "@/components/providers/toaster-provider";
+import { env } from "@/env";
 import { createMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { env } from "@/env";
-import ClarityProvider from "@/components/providers/clarity-provider";
 
 const geist = Geist({
 	variable: "--font-geist-sans",
