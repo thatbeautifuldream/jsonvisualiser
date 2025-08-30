@@ -227,11 +227,7 @@ export function JsonWorkspace() {
 			label: "Tree View",
 			content: (
 				<div className="border flex flex-col h-full bg-white dark:bg-black">
-					<JsonTreeViewer
-						data={parsedJson}
-						className="flex-1 min-h-0"
-						editorTheme={editorTheme}
-					/>
+					<JsonTreeViewer data={parsedJson} className="flex-1 min-h-0" />
 					<StatusBar
 						ref={statusBarRef}
 						isValid={isValid}

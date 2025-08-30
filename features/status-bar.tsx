@@ -63,20 +63,6 @@ export const StatusBar = forwardRef<HTMLDivElement, TStatusBarProps>(
 						Size: <NumberFlow value={formatSize(stats.size).number} />{" "}
 						{formatSize(stats.size).unit}
 					</span>
-					<span
-						className="px-1 hover:bg-muted transition-colors cursor-default text-muted-foreground"
-						title="Creator"
-					>
-						Made by{" "}
-						<a
-							href="https://milindmishra.com/"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-foreground hover:underline transition-colors"
-						>
-							Milind
-						</a>
-					</span>
 				</div>
 			</div>
 		);

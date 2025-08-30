@@ -29,7 +29,8 @@ export function JsonEditor({
 				onMount={onMount}
 				options={{
 					minimap: { enabled: true },
-					fontSize: 14,
+					fontSize: 12,
+					fontFamily: "var(--font-geist-mono)",
 					lineNumbers: "on",
 					roundedSelection: false,
 					scrollBeyondLastLine: false,
