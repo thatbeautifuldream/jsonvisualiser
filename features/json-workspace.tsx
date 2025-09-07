@@ -12,6 +12,7 @@ import { JsonTreeViewer } from "./json-tree-viewer";
 import { StatusBar } from "./status-bar";
 import { FileExplorer } from "./file-explorer";
 import { useJsonStore } from "@/stores/json-document-store";
+import { JsonGraphViewer } from "@/components/json-graph-viewer";
 
 type EditorTheme = "light" | "hc-black";
 
@@ -220,22 +221,39 @@ export function JsonWorkspace() {
 		},
 	];
 
-	// Only show tree view if we have valid JSON and content
+	// Only show tree and graph views if we have valid JSON and content
 	if (isValid && parsedJson && hasFileContent) {
 		tabs.push({
 			id: "tree",
 			label: "Tree View",
 			content: (
-				<div className="border flex flex-col h-full bg-white dark:bg-black">
-					<JsonTreeViewer data={parsedJson} className="flex-1 min-h-0" />
-					<StatusBar
-						ref={statusBarRef}
-						isValid={isValid}
-						error={error}
-						stats={stats}
-						hasContent={hasFileContent}
-					/>
-				</div>
+				<JsonTreeViewer data={parsedJson} className="w-full h-full" />
+			),
+		});
+
+		tabs.push({
+			id: "graph",
+			label: "Graph View",
+			content: (
+				<JsonGraphViewer 
+					data={parsedJson} 
+					preset="deep"
+					onNodeClick={(node, path) => {
+						console.log("Node clicked:", { node, path });
+					}}
+					options={{
+						maxDepth: 4,
+						createHierarchicalLinks: true,
+						createArrayLinks: false,
+						getNodeText: (key, value, path) => {
+							if (key === "root") return "JSON Root";
+							if (typeof value === "string" && value.length < 20) return value;
+							if (typeof value === "number") return String(value);
+							return key;
+						},
+					}}
+					className="w-full h-full"
+				/>
 			),
 		});
 	}
