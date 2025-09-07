@@ -15,8 +15,9 @@ import { cn } from "@/lib/utils";
 import { useJsonStore, type TJsonFile } from "@/stores/json-document-store";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { GitHub } from "@/components/icons/github";
-import { Menu, MoreVertical, Edit2, Trash2, Check, X } from "lucide-react";
+import { Menu, MoreVertical, Edit2, Trash2, Check, X, MessageCircleQuestion } from "lucide-react";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 interface FileExplorerProps {
@@ -253,18 +254,26 @@ export function FileExplorer({ onFileSelect, onNewFile }: FileExplorerProps) {
 				{/* Theme Switcher at the bottom */}
 				<div className="p-3 border-t bg-muted/20">
 					<div className="flex items-center justify-between">
-						<a
-							href="https://github.com/thatbeautifuldream/jsonvisualiser"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="flex items-center gap-2 px-2 py-1 rounded hover:bg-accent transition-colors"
-							aria-label="GitHub Repository"
-						>
-							<GitHub className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
-							<span className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-								jsonvisualiser
-							</span>
-						</a>
+						<div className="flex items-center gap-1">
+							<Link
+								href="https://github.com/thatbeautifuldream/jsonvisualiser"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="flex items-center gap-2 px-2 py-1 rounded hover:bg-accent transition-colors"
+								title="GitHub Repository"
+							>
+								<GitHub className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+							</Link>
+							<Link
+								href="https://jsonvisualiser.canny.io/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="flex items-center gap-2 px-2 py-1 rounded hover:bg-accent transition-colors"
+								title="Feedback"
+							>
+								<MessageCircleQuestion className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+							</Link>
+						</div>
 						<ThemeSwitcher />
 					</div>
 				</div>
