@@ -3,6 +3,7 @@
 import { Check, X } from "lucide-react";
 import { forwardRef } from "react";
 import NumberFlow from "@number-flow/react";
+import Link from "next/link";
 import type { TJsonStats } from "@/stores/json-document-store";
 
 const formatSize = (bytes: number): { number: number; unit: string } => {
@@ -31,6 +32,13 @@ export const StatusBar = forwardRef<HTMLDivElement, TStatusBarProps>(
 				className="bg-white dark:bg-black text-foreground border-t border px-3 py-1 text-xs flex items-center justify-between"
 			>
 				<div className="flex items-center gap-4">
+					<Link
+						href="https://github.com/thatbeautifuldream/jsonvisualiser"
+						target="_blank"
+						className="hover:text-muted-foreground transition-colors"
+					>
+						Open Sourced on GitHub
+					</Link>
 					{hasContent && (
 						<span className="font-medium flex items-center gap-1">
 							{isValid ? <Check size={12} /> : <X size={12} />}
