@@ -22,7 +22,7 @@ export function TypeGeneratorDialog({
     try {
       const parsed = JSON.parse(jsonContent);
       const interfaces = jsonToTs(parsed);
-      return interfaces.join("\n\n");
+      return interfaces.join("\n\n").replace(/interface\s+([A-Z]\w*)\s*{/g, "type $1 = {");
     } catch {
       return "// Invalid JSON";
     }
