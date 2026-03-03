@@ -14,8 +14,7 @@ import { useJsonStore } from "@/stores/json-document-store";
 import { JsonGraphViewer } from "@/components/json-graph-viewer";
 import { TypeGeneratorDialog } from "./type-generator-dialog";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { GitHub } from "@/components/icons/github";
-import Link from "next/link";
+import { GitHubLink } from "./github-link";
 
 type EditorTheme = "light" | "hc-black";
 
@@ -259,14 +258,7 @@ export function JsonWorkspace() {
                 isValid={isValid}
                 isVisible={activeTab === "editor"}
               />
-              <Link
-                href="https://github.com/thatbeautifuldream/jsonvisualiser"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cursor-pointer"
-              >
-                <GitHub className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
-              </Link>
+              <GitHubLink />
               <ThemeSwitcher />
             </div>
           }
