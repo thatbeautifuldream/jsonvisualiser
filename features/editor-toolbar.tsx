@@ -3,69 +3,69 @@
 import { Button } from "@/components/ui/button";
 
 type TEditorToolbarProps = {
-	onFormat: () => void;
-	onMinify: () => void;
-	onCopy: () => void;
-	onClear: () => void;
-	hasContent: boolean;
-	isValid: boolean;
-	className?: string;
-	isVisible?: boolean;
+  onFormat: () => void;
+  onMinify: () => void;
+  onCopy: () => void;
+  onClear: () => void;
+  onGenerateTypes?: () => void;
+  hasContent: boolean;
+  isValid: boolean;
+  className?: string;
+  isVisible?: boolean;
 };
 
+const ToolbarButton = ({
+  onClick,
+  children,
+  disabled,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+  disabled: boolean;
+}) => (
+  <Button
+    onClick={onClick}
+    className="text-xs"
+    disabled={disabled}
+    size="xs"
+    variant="ghost"
+    type="button"
+  >
+    {children}
+  </Button>
+);
+
 export function EditorToolbar({
-	onFormat,
-	onMinify,
-	onCopy,
-	onClear,
-	hasContent,
-	isValid,
-	className = "",
-	isVisible = true,
+  onFormat,
+  onMinify,
+  onCopy,
+  onClear,
+  onGenerateTypes,
+  hasContent,
+  isValid,
+  className = "",
+  isVisible = true,
 }: TEditorToolbarProps) {
-	if (!isVisible) return null;
-	return (
-		<div className={`flex flex-wrap items-center gap-1 ${className}`}>
-			<Button
-				onClick={onFormat}
-				className="text-xs"
-				disabled={!hasContent}
-				size="xs"
-				variant="ghost"
-				type="button"
-			>
-				Format
-			</Button>
-			<Button
-				onClick={onMinify}
-				className="text-xs"
-				disabled={!isValid || !hasContent}
-				size="xs"
-				variant="ghost"
-				type="button"
-			>
-				Minify
-			</Button>
-			<Button
-				onClick={onCopy}
-				className="text-xs"
-				disabled={!hasContent}
-				size="xs"
-				variant="ghost"
-				type="button"
-			>
-				Copy
-			</Button>
-			<Button
-				onClick={onClear}
-				className="text-xs"
-				disabled={!hasContent}
-				size="xs"
-				variant="ghost"
-				type="button"
-			>
-				Clear
-			</Button>
-		</div>
-	);
+  if (!isVisible) return null;
+  return (
+    <div className={`flex flex-wrap items-center gap-1 ${className}`}>
+      <ToolbarButton onClick={onFormat} disabled={!hasContent}>
+        Format
+      </ToolbarButton>
+      <ToolbarButton onClick={onMinify} disabled={!isValid || !hasContent}>
+        Minify
+      </ToolbarButton>
+      <ToolbarButton onClick={onCopy} disabled={!hasContent}>
+        Copy
+      </ToolbarButton>
+      <ToolbarButton onClick={onClear} disabled={!hasContent}>
+        Clear
+      </ToolbarButton>
+      {onGenerateTypes && (
+        <ToolbarButton onClick={onGenerateTypes} disabled={!isValid || !hasContent}>
+          Generate Types
+        </ToolbarButton>
+      )}
+    </div>
+  );
 }

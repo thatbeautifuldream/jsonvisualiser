@@ -72,7 +72,7 @@ export const ThemeSwitcher = ({
                 return (
                     <button
                         aria-label={label}
-                        className="relative h-6 w-6 rounded-full"
+                        className="relative h-6 w-6 rounded-full cursor-pointer"
                         key={key}
                         onClick={() => handleThemeClick(key as 'light' | 'dark')}
                         type="button"
