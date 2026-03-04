@@ -3,7 +3,14 @@
 import type { Monaco } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 import { useTheme } from "next-themes";
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 import { WorkspaceHeader } from "./workspace-header";
 import { EditorToolbar } from "./editor-toolbar";
@@ -36,7 +43,9 @@ export function JsonWorkspace() {
   const saveJson = useJsonStore((state) => state.saveJson);
   const clearJson = useJsonStore((state) => state.clearJson);
   const setJsonContent = useJsonStore((state) => state.setJsonContent);
-  const loadFromSessionStorage = useJsonStore((state) => state.loadFromSessionStorage);
+  const loadFromSessionStorage = useJsonStore(
+    (state) => state.loadFromSessionStorage,
+  );
 
   const isValid = validation.isValid;
   const error = validation.error;
@@ -220,7 +229,8 @@ export function JsonWorkspace() {
               createArrayLinks: false,
               getNodeText: (key, value, path) => {
                 if (key === "root") return "JSON Root";
-                if (typeof value === "string" && value.length < 20) return value;
+                if (typeof value === "string" && value.length < 20)
+                  return value;
                 if (typeof value === "number") return String(value);
                 return key;
               },
@@ -232,7 +242,17 @@ export function JsonWorkspace() {
     }
 
     return baseTabs;
-  }, [jsonContent, handleEditorChange, handleEditorDidMount, editorTheme, isValid, parsedJson, hasFileContent, error, stats]);
+  }, [
+    jsonContent,
+    handleEditorChange,
+    handleEditorDidMount,
+    editorTheme,
+    isValid,
+    parsedJson,
+    hasFileContent,
+    error,
+    stats,
+  ]);
 
   const activeTabContent = useMemo(() => {
     return tabs.find((tab) => tab.id === activeTab)?.content;

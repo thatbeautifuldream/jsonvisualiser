@@ -5,6 +5,7 @@ type MetadataGenerator = Omit<Metadata, "description" | "title"> & {
   title: string;
   description: string;
   image?: string;
+  canonical?: string;
 };
 
 const applicationName = "JSON Visualiser";
@@ -19,6 +20,7 @@ export const createMetadata = ({
   title,
   description,
   image,
+  canonical,
   ...properties
 }: MetadataGenerator): Metadata => {
   const parsedTitle = `${title} | ${applicationName}`;
@@ -45,7 +47,7 @@ export const createMetadata = ({
       locale: "en_US",
       images: [
         {
-          url: "https://dqy38fnwh4fqs.cloudfront.net/scroll/UHDNGKG7BMJ8PKPFNLPRDDRNOAG7-1753640125899",
+          url: "https://cdn.milind.app/media/og/json-visualiser.webp",
           width: 1200,
           height: 630,
         },
@@ -60,7 +62,7 @@ export const createMetadata = ({
       creator: twitterHandle,
       images: [
         {
-          url: "https://dqy38fnwh4fqs.cloudfront.net/scroll/UHDNGKG7BMJ8PKPFNLPRDDRNOAG7-1753640125899",
+          url: "https://cdn.milind.app/media/og/json-visualiser.webp",
           width: 1200,
           height: 630,
         },
@@ -69,6 +71,12 @@ export const createMetadata = ({
   };
 
   const metadata: Metadata = merge(defaultMetadata, properties);
+
+  if (canonical) {
+    metadata.alternates = {
+      canonical,
+    };
+  }
 
   return metadata;
 };

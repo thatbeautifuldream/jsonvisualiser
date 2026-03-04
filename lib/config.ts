@@ -8,4 +8,5 @@ export const siteConfig = {
   },
   owner: "thatbeautifuldream",
   repo: "jsonvisualiser",
+  website: "https://jsonvisualiser.com",
 };
