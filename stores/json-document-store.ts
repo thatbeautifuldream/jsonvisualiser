@@ -60,8 +60,12 @@ export const useJsonStore = create<TJsonStore>((set, get) => ({
     if (typeof window === "undefined") return;
 
     void (async () => {
-      const tabId = await indexedDBService.getOrCreateTabId();
-      await indexedDBService.deleteTabState(tabId);
+      try {
+        const tabId = await indexedDBService.getOrCreateTabId();
+        await indexedDBService.deleteTabState(tabId);
+      } catch (error) {
+        console.error("Failed to clear persisted JSON state", error);
+      }
     })();
   },
 
