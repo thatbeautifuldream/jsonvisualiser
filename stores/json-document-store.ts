@@ -1,8 +1,10 @@
 "use client";
 
 import { create } from "zustand";
+import { indexedDBService } from "@/lib/json-storage-service";
 
-const STORAGE_KEY = "json-visualiser-content";
+const LEGACY_SESSION_STORAGE_KEY = "json-visualiser-content";
+const STALE_TABS_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 export type TValidationResult = {
   isValid: boolean;
@@ -21,7 +23,7 @@ export type TJsonStore = {
   setJsonContent: (content: string) => void;
   saveJson: (content: string) => void;
   clearJson: () => void;
-  loadFromSessionStorage: () => void;
+  loadFromIndexedDB: () => Promise<void>;
   getValidation: () => TValidationResult;
   getStats: () => TJsonStats;
   hasContent: () => boolean;
@@ -43,26 +45,47 @@ export const useJsonStore = create<TJsonStore>((set, get) => ({
     set({ jsonContent: content });
     validationCache.clear();
     statsCache.clear();
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(STORAGE_KEY, content);
-    }
+    if (typeof window === "undefined") return;
+
+    void (async () => {
+      const tabId = await indexedDBService.getOrCreateTabId();
+      await indexedDBService.saveTabState(tabId, content);
+    })();
   },
 
   clearJson: () => {
     set({ jsonContent: "" });
     validationCache.clear();
     statsCache.clear();
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem(STORAGE_KEY);
-    }
+    if (typeof window === "undefined") return;
+
+    void (async () => {
+      const tabId = await indexedDBService.getOrCreateTabId();
+      await indexedDBService.deleteTabState(tabId);
+    })();
   },
 
-  loadFromSessionStorage: () => {
-    if (typeof window !== "undefined") {
-      const saved = sessionStorage.getItem(STORAGE_KEY);
-      if (saved !== null) {
-        set({ jsonContent: saved });
-      }
+  loadFromIndexedDB: async () => {
+    if (typeof window === "undefined") return;
+
+    indexedDBService.registerLifecycleCleanup();
+    const tabId = await indexedDBService.getOrCreateTabId();
+    const cutoffMs = Date.now() - STALE_TABS_TTL_MS;
+    void indexedDBService.cleanupStaleTabs(cutoffMs);
+    void indexedDBService.cleanupClosedTabs();
+
+    const persisted = await indexedDBService.getTabState(tabId);
+    if (persisted) {
+      set({ jsonContent: persisted.content });
+      return;
+    }
+
+    // One-time migration from legacy sessionStorage persistence.
+    const legacyContent = sessionStorage.getItem(LEGACY_SESSION_STORAGE_KEY);
+    if (legacyContent !== null) {
+      set({ jsonContent: legacyContent });
+      await indexedDBService.saveTabState(tabId, legacyContent);
+      sessionStorage.removeItem(LEGACY_SESSION_STORAGE_KEY);
     }
   },
 
