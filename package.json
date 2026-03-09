@@ -25,6 +25,7 @@
     "clsx": "^2.1.1",
     "d3-force": "^3.0.0",
     "deepmerge": "^4.3.1",
+    "dexie": "^4.3.0",
     "json-to-ts": "^2.1.0",
     "lucide-react": "^0.526.0",
     "monaco-editor": "^0.52.2",

@@ -43,8 +43,8 @@ export function JsonWorkspace() {
   const saveJson = useJsonStore((state) => state.saveJson);
   const clearJson = useJsonStore((state) => state.clearJson);
   const setJsonContent = useJsonStore((state) => state.setJsonContent);
-  const loadFromSessionStorage = useJsonStore(
-    (state) => state.loadFromSessionStorage,
+  const loadFromIndexedDB = useJsonStore(
+    (state) => state.loadFromIndexedDB,
   );
 
   const isValid = validation.isValid;
@@ -52,8 +52,8 @@ export function JsonWorkspace() {
   const parsedJson = validation.parsedJson;
 
   useEffect(() => {
-    loadFromSessionStorage();
-  }, [loadFromSessionStorage]);
+    void loadFromIndexedDB();
+  }, [loadFromIndexedDB]);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.getValue() !== jsonContent) {
