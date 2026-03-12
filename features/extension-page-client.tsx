@@ -23,6 +23,13 @@ type TExtensionLoadMessage = {
   payload: TExtensionLoadPayload;
 };
 
+type TExtensionReadyMessage = {
+  type: "JSON_VISUALISER_READY";
+  payload: {
+    version: 1;
+  };
+};
+
 const isValidPayload = (
   payload: unknown,
 ): payload is TExtensionLoadPayload => {
@@ -74,6 +81,13 @@ export function ExtensionPageClient() {
       setHasTimedOut(true);
     }, FALLBACK_DELAY_MS);
 
+    const readyMessage: TExtensionReadyMessage = {
+      type: "JSON_VISUALISER_READY",
+      payload: {
+        version: 1,
+      },
+    };
+
     const onMessage = (event: MessageEvent) => {
       if (event.source !== window.parent) {
         return;
@@ -114,6 +128,7 @@ export function ExtensionPageClient() {
     };
 
     window.addEventListener("message", onMessage);
+    window.parent.postMessage(readyMessage, "*");
 
     return () => {
       window.removeEventListener("message", onMessage);
