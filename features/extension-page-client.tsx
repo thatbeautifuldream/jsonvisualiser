@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { JsonWorkspace } from "./json-workspace";
 import { useJsonStore } from "@/stores/json-document-store";
 import { toast } from "sonner";
@@ -151,7 +151,6 @@ export function ExtensionPageClient() {
   const hasShownFallbackToastRef = useRef(false);
   const activePortRef = useRef<MessagePort | null>(null);
 
-  const metadata = useJsonStore((state) => state.metadata);
   const loadJsonDocument = useJsonStore((state) => state.loadJsonDocument);
 
   useEffect(() => {
@@ -198,8 +197,11 @@ export function ExtensionPageClient() {
     };
 
     const acceptPayload = async (payload: TExtensionLoadPayload) => {
+      let formattedContent = payload.jsonText;
+
       try {
-        JSON.parse(payload.jsonText);
+        const parsed = JSON.parse(payload.jsonText);
+        formattedContent = JSON.stringify(parsed, null, 2);
       } catch (parseError) {
         failTransfer(
           "Payload failed",
@@ -211,7 +213,7 @@ export function ExtensionPageClient() {
       }
 
       await loadJsonDocument({
-        content: payload.jsonText,
+        content: formattedContent,
         source: "extension",
         sourceUrl: payload.sourceUrl,
         contentType: payload.contentType ?? null,
@@ -387,36 +389,10 @@ export function ExtensionPageClient() {
     });
   }, [hasAcceptedPayload, hasTimedOut]);
 
-  const sourceDetails = useMemo(() => {
-    if (!metadata.sourceUrl) {
-      return {
-        href: null,
-      };
-    }
-
-    return {
-      href: metadata.sourceUrl,
-    };
-  }, [metadata.sourceUrl]);
-
   return (
     <main className="h-screen overflow-hidden bg-background text-foreground">
       <JsonWorkspace
         mode="extension"
-        onOpenOriginal={
-          sourceDetails.href
-            ? () => {
-                window.open(
-                  sourceDetails.href,
-                  "_blank",
-                  "noopener,noreferrer",
-                );
-              }
-            : undefined
-        }
-        onOpenMainApp={() => {
-          window.open("/", "_blank", "noopener,noreferrer");
-        }}
         shouldLoadPersistedState={hasTimedOut && !hasAcceptedPayload}
       />
     </main>

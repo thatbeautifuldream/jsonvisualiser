@@ -22,22 +22,17 @@ import { JsonGraphViewer } from "@/components/json-graph-viewer";
 import { TypeGeneratorDialog } from "./type-generator-dialog";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { GitHubLink } from "./github-link";
-import { Button } from "@/components/ui/button";
 
 type EditorTheme = "light" | "hc-black";
 
 type TJsonWorkspaceProps = {
   mode?: "default" | "extension";
   shouldLoadPersistedState?: boolean;
-  onOpenOriginal?: () => void;
-  onOpenMainApp?: () => void;
 };
 
 export function JsonWorkspace({
   mode = "default",
   shouldLoadPersistedState = true,
-  onOpenOriginal,
-  onOpenMainApp,
 }: TJsonWorkspaceProps) {
   const [editorTheme, setEditorTheme] = useState<EditorTheme>("hc-black");
   const [activeTab, setActiveTab] = useState("editor");
@@ -305,29 +300,6 @@ export function JsonWorkspace({
   const headerActions = useMemo(() => {
     return (
       <div className="flex items-center gap-2">
-        {isExtensionMode && onOpenOriginal ? (
-          <Button
-            className="text-xs"
-            size="xs"
-            variant="outline"
-            onClick={onOpenOriginal}
-            disabled={!metadata.sourceUrl}
-            type="button"
-          >
-            Open Original
-          </Button>
-        ) : null}
-        {isExtensionMode && onOpenMainApp ? (
-          <Button
-            className="text-xs"
-            size="xs"
-            variant="ghost"
-            onClick={onOpenMainApp}
-            type="button"
-          >
-            Open Main App
-          </Button>
-        ) : null}
         <EditorToolbar
           onFormat={formatJson}
           onMinify={minifyJson}
@@ -348,12 +320,8 @@ export function JsonWorkspace({
     formatJson,
     generateTypes,
     hasFileContent,
-    isExtensionMode,
     isValid,
-    metadata.sourceUrl,
     minifyJson,
-    onOpenMainApp,
-    onOpenOriginal,
     clearEditor,
   ]);
 
