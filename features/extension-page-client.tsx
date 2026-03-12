@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { AlertCircle, ExternalLink, LoaderCircle } from "lucide-react";
 import { JsonWorkspace } from "./json-workspace";
 import { useJsonStore } from "@/stores/json-document-store";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const FALLBACK_DELAY_MS = 1500;
+const STREAM_STALL_TIMEOUT_MS = 15000;
+const STATUS_TOAST_ID = "extension-payload-status";
 
 type TExtensionLoadPayload = {
   sourceUrl: string;
@@ -18,11 +17,6 @@ type TExtensionLoadPayload = {
   version: 1;
 };
 
-type TExtensionLoadMessage = {
-  type: "JSON_VISUALISER_LOAD";
-  payload: TExtensionLoadPayload;
-};
-
 type TExtensionReadyMessage = {
   type: "JSON_VISUALISER_READY";
   payload: {
@@ -30,56 +24,221 @@ type TExtensionReadyMessage = {
   };
 };
 
-const isValidPayload = (
+type TExtensionPortPayload = {
+  version: 1;
+  transferId: string;
+  sourceUrl: string;
+  contentType?: string | null;
+  detectedAt?: string;
+  totalChunks: number;
+  totalCharacters: number;
+};
+
+type TExtensionPortMessage = {
+  type: "JSON_VISUALISER_PORT";
+  payload: TExtensionPortPayload;
+};
+
+type TExtensionChunkMessage = {
+  type: "JSON_VISUALISER_CHUNK";
+  payload: {
+    index: number;
+    chunk: string;
+  };
+};
+
+type TExtensionCompleteMessage = {
+  type: "JSON_VISUALISER_COMPLETE";
+};
+
+type TExtensionAbortMessage = {
+  type: "JSON_VISUALISER_ABORT";
+  payload?: {
+    reason?: string;
+  };
+};
+
+type TExtensionAckMessage = {
+  type: "JSON_VISUALISER_ACK";
+  payload: {
+    index: number;
+  };
+};
+
+type TExtensionDirectLoadMessage = {
+  type: "JSON_VISUALISER_LOAD";
+  payload: TExtensionLoadPayload;
+};
+
+const isObjectRecord = (value: unknown): value is Record<string, unknown> => {
+  return Boolean(value) && typeof value === "object";
+};
+
+const isDirectLoadPayload = (
   payload: unknown,
 ): payload is TExtensionLoadPayload => {
-  if (!payload || typeof payload !== "object") {
+  if (!isObjectRecord(payload)) {
     return false;
   }
 
-  const candidate = payload as Record<string, unknown>;
-
   return (
-    candidate.version === 1 &&
-    typeof candidate.sourceUrl === "string" &&
-    candidate.sourceUrl.length > 0 &&
-    typeof candidate.jsonText === "string" &&
-    (candidate.contentType === undefined ||
-      candidate.contentType === null ||
-      typeof candidate.contentType === "string") &&
-    (candidate.detectedAt === undefined ||
-      typeof candidate.detectedAt === "string")
+    payload.version === 1 &&
+    typeof payload.sourceUrl === "string" &&
+    payload.sourceUrl.length > 0 &&
+    typeof payload.jsonText === "string" &&
+    (payload.contentType === undefined ||
+      payload.contentType === null ||
+      typeof payload.contentType === "string") &&
+    (payload.detectedAt === undefined || typeof payload.detectedAt === "string")
   );
 };
 
-const isValidMessage = (
+const isDirectLoadMessage = (
   data: unknown,
-): data is TExtensionLoadMessage => {
-  if (!data || typeof data !== "object") {
+): data is TExtensionDirectLoadMessage => {
+  if (!isObjectRecord(data)) {
     return false;
   }
 
-  const candidate = data as Record<string, unknown>;
   return (
-    candidate.type === "JSON_VISUALISER_LOAD" &&
-    isValidPayload(candidate.payload)
+    data.type === "JSON_VISUALISER_LOAD" && isDirectLoadPayload(data.payload)
   );
+};
+
+const isPortPayload = (payload: unknown): payload is TExtensionPortPayload => {
+  if (!isObjectRecord(payload)) {
+    return false;
+  }
+
+  return (
+    payload.version === 1 &&
+    typeof payload.transferId === "string" &&
+    payload.transferId.length > 0 &&
+    typeof payload.sourceUrl === "string" &&
+    payload.sourceUrl.length > 0 &&
+    typeof payload.totalChunks === "number" &&
+    payload.totalChunks > 0 &&
+    typeof payload.totalCharacters === "number" &&
+    payload.totalCharacters >= 0 &&
+    (payload.contentType === undefined ||
+      payload.contentType === null ||
+      typeof payload.contentType === "string") &&
+    (payload.detectedAt === undefined || typeof payload.detectedAt === "string")
+  );
+};
+
+const isPortMessage = (data: unknown): data is TExtensionPortMessage => {
+  if (!isObjectRecord(data)) {
+    return false;
+  }
+
+  return data.type === "JSON_VISUALISER_PORT" && isPortPayload(data.payload);
+};
+
+const getSourceHost = (sourceUrl: string) => {
+  try {
+    return new URL(sourceUrl).hostname;
+  } catch {
+    return sourceUrl;
+  }
 };
 
 export function ExtensionPageClient() {
   const [hasTimedOut, setHasTimedOut] = useState(false);
   const [hasAcceptedPayload, setHasAcceptedPayload] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const timeoutRef = useRef<number | null>(null);
+  const stallTimeoutRef = useRef<number | null>(null);
+  const hasShownFallbackToastRef = useRef(false);
+  const activePortRef = useRef<MessagePort | null>(null);
 
   const metadata = useJsonStore((state) => state.metadata);
-  const hasContent = useJsonStore((state) => state.hasContent());
   const loadJsonDocument = useJsonStore((state) => state.loadJsonDocument);
 
   useEffect(() => {
+    const clearFallbackTimer = () => {
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+
+    const resetStallTimer = (onStall: () => void) => {
+      if (stallTimeoutRef.current !== null) {
+        window.clearTimeout(stallTimeoutRef.current);
+      }
+
+      stallTimeoutRef.current = window.setTimeout(
+        onStall,
+        STREAM_STALL_TIMEOUT_MS,
+      );
+    };
+
+    const clearStallTimer = () => {
+      if (stallTimeoutRef.current !== null) {
+        window.clearTimeout(stallTimeoutRef.current);
+        stallTimeoutRef.current = null;
+      }
+    };
+
+    const closeActivePort = () => {
+      activePortRef.current?.close();
+      activePortRef.current = null;
+    };
+
+    const failTransfer = (title: string, description: string) => {
+      clearFallbackTimer();
+      clearStallTimer();
+      closeActivePort();
+      toast.error(title, {
+        id: STATUS_TOAST_ID,
+        description,
+      });
+      setHasTimedOut(true);
+      setHasAcceptedPayload(false);
+    };
+
+    const acceptPayload = async (payload: TExtensionLoadPayload) => {
+      try {
+        JSON.parse(payload.jsonText);
+      } catch (parseError) {
+        failTransfer(
+          "Payload failed",
+          parseError instanceof Error
+            ? parseError.message
+            : "Invalid JSON payload.",
+        );
+        return;
+      }
+
+      await loadJsonDocument({
+        content: payload.jsonText,
+        source: "extension",
+        sourceUrl: payload.sourceUrl,
+        contentType: payload.contentType ?? null,
+        persist: true,
+      });
+
+      clearFallbackTimer();
+      clearStallTimer();
+      closeActivePort();
+
+      toast.success(`Loaded ${getSourceHost(payload.sourceUrl)}`, {
+        id: STATUS_TOAST_ID,
+        description: payload.contentType ?? "JSON is ready.",
+      });
+
+      setHasAcceptedPayload(true);
+      setHasTimedOut(false);
+    };
+
     timeoutRef.current = window.setTimeout(() => {
       setHasTimedOut(true);
     }, FALLBACK_DELAY_MS);
+
+    toast.loading("Waiting for payload", {
+      id: STATUS_TOAST_ID,
+      description: "Waiting for page data.",
+    });
 
     const readyMessage: TExtensionReadyMessage = {
       type: "JSON_VISUALISER_READY",
@@ -88,180 +247,178 @@ export function ExtensionPageClient() {
       },
     };
 
-    const onMessage = (event: MessageEvent) => {
+    const onWindowMessage = (event: MessageEvent) => {
       if (event.source !== window.parent) {
         return;
       }
 
-      if (!isValidMessage(event.data)) {
+      if (isDirectLoadMessage(event.data)) {
+        void acceptPayload(event.data.payload);
         return;
       }
 
-      const { payload } = event.data;
-
-      try {
-        JSON.parse(payload.jsonText);
-      } catch (parseError) {
-        setError(
-          parseError instanceof Error
-            ? parseError.message
-            : "Received invalid JSON payload.",
-        );
+      if (!isPortMessage(event.data)) {
         return;
       }
 
-      void loadJsonDocument({
-        content: payload.jsonText,
-        source: "extension",
-        sourceUrl: payload.sourceUrl,
-        contentType: payload.contentType ?? null,
-        persist: true,
+      const port = event.ports[0];
+      if (!port) {
+        failTransfer("Transfer failed", "No data channel.");
+        return;
+      }
+
+      clearFallbackTimer();
+      clearStallTimer();
+      closeActivePort();
+      activePortRef.current = port;
+
+      const transfer = event.data.payload;
+      const chunks = new Array<string>(transfer.totalChunks);
+      let expectedIndex = 0;
+
+      toast.loading(`Receiving ${getSourceHost(transfer.sourceUrl)}`, {
+        id: STATUS_TOAST_ID,
+        description: `${transfer.totalChunks} chunks queued.`,
       });
 
-      if (timeoutRef.current !== null) {
-        window.clearTimeout(timeoutRef.current);
-      }
+      const onStall = () => {
+        port.postMessage({
+          type: "JSON_VISUALISER_ABORT",
+          payload: {
+            reason: "Stream stalled.",
+          },
+        } satisfies TExtensionAbortMessage);
+        failTransfer("Transfer stalled", "Stream timed out.");
+      };
 
-      setError(null);
-      setHasAcceptedPayload(true);
-      setHasTimedOut(false);
+      resetStallTimer(onStall);
+
+      port.onmessage = (portEvent: MessageEvent) => {
+        const data = portEvent.data;
+
+        if (!isObjectRecord(data) || typeof data.type !== "string") {
+          failTransfer("Transfer failed", "Bad chunk data.");
+          return;
+        }
+
+        if (data.type === "JSON_VISUALISER_CHUNK") {
+          const chunkMessage = data as TExtensionChunkMessage;
+          if (
+            !isObjectRecord(chunkMessage.payload) ||
+            typeof chunkMessage.payload.index !== "number" ||
+            typeof chunkMessage.payload.chunk !== "string"
+          ) {
+            failTransfer("Transfer failed", "Bad chunk data.");
+            return;
+          }
+
+          if (chunkMessage.payload.index !== expectedIndex) {
+            failTransfer("Transfer failed", "Chunk order broke.");
+            return;
+          }
+
+          chunks[expectedIndex] = chunkMessage.payload.chunk;
+          port.postMessage({
+            type: "JSON_VISUALISER_ACK",
+            payload: {
+              index: expectedIndex,
+            },
+          } satisfies TExtensionAckMessage);
+          expectedIndex += 1;
+          resetStallTimer(onStall);
+          return;
+        }
+
+        if (data.type === "JSON_VISUALISER_COMPLETE") {
+          if (expectedIndex !== transfer.totalChunks) {
+            failTransfer("Transfer failed", "Payload was incomplete.");
+            return;
+          }
+
+          const jsonText = chunks.join("");
+          if (jsonText.length !== transfer.totalCharacters) {
+            failTransfer("Transfer failed", "Payload size changed.");
+            return;
+          }
+
+          void acceptPayload({
+            version: 1,
+            sourceUrl: transfer.sourceUrl,
+            jsonText,
+            contentType: transfer.contentType ?? null,
+            detectedAt: transfer.detectedAt,
+          });
+          return;
+        }
+
+        if (data.type === "JSON_VISUALISER_ABORT") {
+          failTransfer("Transfer failed", "Stream was cancelled.");
+        }
+      };
+
+      port.start();
     };
 
-    window.addEventListener("message", onMessage);
+    window.addEventListener("message", onWindowMessage);
     window.parent.postMessage(readyMessage, "*");
 
     return () => {
-      window.removeEventListener("message", onMessage);
-      if (timeoutRef.current !== null) {
-        window.clearTimeout(timeoutRef.current);
-      }
+      window.removeEventListener("message", onWindowMessage);
+      clearFallbackTimer();
+      clearStallTimer();
+      closeActivePort();
+      toast.dismiss(STATUS_TOAST_ID);
     };
   }, [loadJsonDocument]);
 
-  const isWaitingForPayload = !hasAcceptedPayload && !hasTimedOut && !error;
-  const canRenderWorkspace = hasAcceptedPayload || hasTimedOut;
+  useEffect(() => {
+    if (
+      hasAcceptedPayload ||
+      !hasTimedOut ||
+      hasShownFallbackToastRef.current
+    ) {
+      return;
+    }
+
+    hasShownFallbackToastRef.current = true;
+    toast.warning("No payload received", {
+      id: STATUS_TOAST_ID,
+      description: "Using saved tab state.",
+    });
+  }, [hasAcceptedPayload, hasTimedOut]);
 
   const sourceDetails = useMemo(() => {
     if (!metadata.sourceUrl) {
       return {
-        hostname: "Waiting for source",
         href: null,
       };
     }
 
-    try {
-      const url = new URL(metadata.sourceUrl);
-      return {
-        hostname: url.hostname,
-        href: metadata.sourceUrl,
-      };
-    } catch {
-      return {
-        hostname: metadata.sourceUrl,
-        href: metadata.sourceUrl,
-      };
-    }
+    return {
+      href: metadata.sourceUrl,
+    };
   }, [metadata.sourceUrl]);
-
-  if (error) {
-    return (
-      <main className="min-h-screen bg-background px-4 py-8 text-foreground">
-        <div className="mx-auto flex max-w-3xl flex-col gap-4">
-          <Alert variant="destructive">
-            <AlertCircle />
-            <AlertTitle>Could not open extension payload</AlertTitle>
-            <AlertDescription>
-              {error}
-            </AlertDescription>
-          </Alert>
-          <Button asChild className="w-fit" variant="outline">
-            <Link href="/">Open the standard editor</Link>
-          </Button>
-        </div>
-      </main>
-    );
-  }
-
-  if (isWaitingForPayload) {
-    return (
-      <main className="min-h-screen bg-background px-4 py-8 text-foreground">
-        <div className="mx-auto flex max-w-3xl flex-col gap-4">
-          <Alert>
-            <LoaderCircle className="animate-spin" />
-            <AlertTitle>Waiting for JSON payload</AlertTitle>
-            <AlertDescription>
-              The extension will send the current page&apos;s JSON here once the
-              iframe is ready.
-            </AlertDescription>
-          </Alert>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="h-screen overflow-hidden bg-background text-foreground">
-      <div className="border-b border-border/70 bg-background/95 px-4 py-2 text-xs">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Extension
-            </span>
-            <span
-              className="truncate font-medium text-foreground"
-              title={metadata.sourceUrl ?? undefined}
-            >
-              {sourceDetails.hostname}
-            </span>
-            {metadata.contentType ? (
-              <span className="rounded border border-border px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
-                {metadata.contentType}
-              </span>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2">
-            {sourceDetails.href ? (
-              <Button asChild size="xs" variant="outline">
-                <a
-                  href={sourceDetails.href}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Open Original
-                  <ExternalLink />
-                </a>
-              </Button>
-            ) : null}
-            <Button asChild size="xs" variant="ghost">
-              <Link href="/">Open Main App</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-      {canRenderWorkspace ? (
-        <JsonWorkspace
-          mode="extension"
-          onOpenOriginal={
-            sourceDetails.href
-              ? () => {
-                  window.open(sourceDetails.href, "_blank", "noopener,noreferrer");
-                }
-              : undefined
-          }
-          shouldLoadPersistedState={!hasAcceptedPayload}
-        />
-      ) : null}
-      {!hasAcceptedPayload && hasTimedOut && !hasContent ? (
-        <div className="pointer-events-none absolute inset-x-4 top-20 z-20">
-          <Alert className="mx-auto max-w-3xl">
-            <AlertCircle />
-            <AlertTitle>No extension payload received</AlertTitle>
-            <AlertDescription>
-              Falling back to any persisted editor state for this tab.
-            </AlertDescription>
-          </Alert>
-        </div>
-      ) : null}
+      <JsonWorkspace
+        mode="extension"
+        onOpenOriginal={
+          sourceDetails.href
+            ? () => {
+                window.open(
+                  sourceDetails.href,
+                  "_blank",
+                  "noopener,noreferrer",
+                );
+              }
+            : undefined
+        }
+        onOpenMainApp={() => {
+          window.open("/", "_blank", "noopener,noreferrer");
+        }}
+        shouldLoadPersistedState={hasTimedOut && !hasAcceptedPayload}
+      />
     </main>
   );
 }

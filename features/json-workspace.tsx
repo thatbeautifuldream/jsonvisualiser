@@ -30,12 +30,14 @@ type TJsonWorkspaceProps = {
   mode?: "default" | "extension";
   shouldLoadPersistedState?: boolean;
   onOpenOriginal?: () => void;
+  onOpenMainApp?: () => void;
 };
 
 export function JsonWorkspace({
   mode = "default",
   shouldLoadPersistedState = true,
   onOpenOriginal,
+  onOpenMainApp,
 }: TJsonWorkspaceProps) {
   const [editorTheme, setEditorTheme] = useState<EditorTheme>("hc-black");
   const [activeTab, setActiveTab] = useState("editor");
@@ -55,9 +57,7 @@ export function JsonWorkspace({
   const saveJson = useJsonStore((state) => state.saveJson);
   const clearJson = useJsonStore((state) => state.clearJson);
   const setJsonContent = useJsonStore((state) => state.setJsonContent);
-  const loadFromIndexedDB = useJsonStore(
-    (state) => state.loadFromIndexedDB,
-  );
+  const loadFromIndexedDB = useJsonStore((state) => state.loadFromIndexedDB);
 
   const isValid = validation.isValid;
   const error = validation.error;
@@ -279,17 +279,26 @@ export function JsonWorkspace({
       return <div />;
     }
 
+    const sourceLabel = (() => {
+      if (!metadata.sourceUrl) {
+        return "Waiting for URL";
+      }
+
+      const maxLength = 56;
+      if (metadata.sourceUrl.length <= maxLength) {
+        return metadata.sourceUrl;
+      }
+
+      return `${metadata.sourceUrl.slice(0, maxLength - 3)}...`;
+    })();
+
     return (
-      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-        <span className="font-medium text-foreground">Extension Mode</span>
-        {metadata.sourceUrl ? (
-          <span className="max-w-[280px] truncate" title={metadata.sourceUrl}>
-            {metadata.sourceUrl}
-          </span>
-        ) : (
-          <span>Waiting for source</span>
-        )}
-      </div>
+      <span
+        className="block max-w-[360px] truncate text-xs text-muted-foreground"
+        title={metadata.sourceUrl ?? undefined}
+      >
+        {sourceLabel}
+      </span>
     );
   }, [isExtensionMode, metadata.sourceUrl]);
 
@@ -298,6 +307,7 @@ export function JsonWorkspace({
       <div className="flex items-center gap-2">
         {isExtensionMode && onOpenOriginal ? (
           <Button
+            className="text-xs"
             size="xs"
             variant="outline"
             onClick={onOpenOriginal}
@@ -305,6 +315,17 @@ export function JsonWorkspace({
             type="button"
           >
             Open Original
+          </Button>
+        ) : null}
+        {isExtensionMode && onOpenMainApp ? (
+          <Button
+            className="text-xs"
+            size="xs"
+            variant="ghost"
+            onClick={onOpenMainApp}
+            type="button"
+          >
+            Open Main App
           </Button>
         ) : null}
         <EditorToolbar
@@ -331,6 +352,7 @@ export function JsonWorkspace({
     isValid,
     metadata.sourceUrl,
     minifyJson,
+    onOpenMainApp,
     onOpenOriginal,
     clearEditor,
   ]);
