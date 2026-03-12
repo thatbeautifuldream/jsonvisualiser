@@ -18,12 +18,36 @@ export type TJsonStats = {
   size: number;
 };
 
+export type TLoadJsonSource = "manual" | "extension";
+
+export type TJsonDocumentMetadata = {
+  source: TLoadJsonSource;
+  sourceUrl: string | null;
+  contentType: string | null;
+  loadedAt: number | null;
+};
+
+const DEFAULT_METADATA: TJsonDocumentMetadata = {
+  source: "manual",
+  sourceUrl: null,
+  contentType: null,
+  loadedAt: null,
+};
+
 export type TJsonStore = {
   jsonContent: string;
+  metadata: TJsonDocumentMetadata;
   setJsonContent: (content: string) => void;
   saveJson: (content: string) => void;
   clearJson: () => void;
   loadFromIndexedDB: () => Promise<void>;
+  loadJsonDocument: (input: {
+    content: string;
+    source: TLoadJsonSource;
+    sourceUrl?: string;
+    contentType?: string | null;
+    persist?: boolean;
+  }) => Promise<void>;
   getValidation: () => TValidationResult;
   getStats: () => TJsonStats;
   hasContent: () => boolean;
@@ -34,6 +58,7 @@ const statsCache = new Map<string, TJsonStats>();
 
 export const useJsonStore = create<TJsonStore>((set, get) => ({
   jsonContent: "",
+  metadata: DEFAULT_METADATA,
 
   setJsonContent: (content: string) => {
     set({ jsonContent: content });
@@ -80,17 +105,43 @@ export const useJsonStore = create<TJsonStore>((set, get) => ({
 
     const persisted = await indexedDBService.getTabState(tabId);
     if (persisted) {
-      set({ jsonContent: persisted.content });
+      set({ jsonContent: persisted.content, metadata: DEFAULT_METADATA });
       return;
     }
 
     // One-time migration from legacy sessionStorage persistence.
     const legacyContent = sessionStorage.getItem(LEGACY_SESSION_STORAGE_KEY);
     if (legacyContent !== null) {
-      set({ jsonContent: legacyContent });
+      set({ jsonContent: legacyContent, metadata: DEFAULT_METADATA });
       await indexedDBService.saveTabState(tabId, legacyContent);
       sessionStorage.removeItem(LEGACY_SESSION_STORAGE_KEY);
     }
+  },
+
+  loadJsonDocument: async ({
+    content,
+    source,
+    sourceUrl,
+    contentType,
+    persist = true,
+  }) => {
+    const metadata: TJsonDocumentMetadata = {
+      source,
+      sourceUrl: sourceUrl ?? null,
+      contentType: contentType ?? null,
+      loadedAt: Date.now(),
+    };
+
+    set({ jsonContent: content, metadata });
+    validationCache.clear();
+    statsCache.clear();
+
+    if (!persist || typeof window === "undefined") {
+      return;
+    }
+
+    const tabId = await indexedDBService.getOrCreateTabId();
+    await indexedDBService.saveTabState(tabId, content);
   },
 
   getValidation: (): TValidationResult => {

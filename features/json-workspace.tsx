@@ -22,10 +22,21 @@ import { JsonGraphViewer } from "@/components/json-graph-viewer";
 import { TypeGeneratorDialog } from "./type-generator-dialog";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { GitHubLink } from "./github-link";
+import { Button } from "@/components/ui/button";
 
 type EditorTheme = "light" | "hc-black";
 
-export function JsonWorkspace() {
+type TJsonWorkspaceProps = {
+  mode?: "default" | "extension";
+  shouldLoadPersistedState?: boolean;
+  onOpenOriginal?: () => void;
+};
+
+export function JsonWorkspace({
+  mode = "default",
+  shouldLoadPersistedState = true,
+  onOpenOriginal,
+}: TJsonWorkspaceProps) {
   const [editorTheme, setEditorTheme] = useState<EditorTheme>("hc-black");
   const [activeTab, setActiveTab] = useState("editor");
   const [isTypeDialogOpen, setIsTypeDialogOpen] = useState(false);
@@ -40,6 +51,7 @@ export function JsonWorkspace() {
   const stats = useJsonStore((state) => state.getStats());
   const hasFileContent = useJsonStore((state) => state.hasContent());
   const jsonContent = useJsonStore((state) => state.jsonContent);
+  const metadata = useJsonStore((state) => state.metadata);
   const saveJson = useJsonStore((state) => state.saveJson);
   const clearJson = useJsonStore((state) => state.clearJson);
   const setJsonContent = useJsonStore((state) => state.setJsonContent);
@@ -50,10 +62,14 @@ export function JsonWorkspace() {
   const isValid = validation.isValid;
   const error = validation.error;
   const parsedJson = validation.parsedJson;
+  const isExtensionMode = mode === "extension";
 
   useEffect(() => {
+    if (!shouldLoadPersistedState) {
+      return;
+    }
     void loadFromIndexedDB();
-  }, [loadFromIndexedDB]);
+  }, [loadFromIndexedDB, shouldLoadPersistedState]);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.getValue() !== jsonContent) {
@@ -258,6 +274,67 @@ export function JsonWorkspace() {
     return tabs.find((tab) => tab.id === activeTab)?.content;
   }, [tabs, activeTab]);
 
+  const leftActions = useMemo(() => {
+    if (!isExtensionMode) {
+      return <div />;
+    }
+
+    return (
+      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <span className="font-medium text-foreground">Extension Mode</span>
+        {metadata.sourceUrl ? (
+          <span className="max-w-[280px] truncate" title={metadata.sourceUrl}>
+            {metadata.sourceUrl}
+          </span>
+        ) : (
+          <span>Waiting for source</span>
+        )}
+      </div>
+    );
+  }, [isExtensionMode, metadata.sourceUrl]);
+
+  const headerActions = useMemo(() => {
+    return (
+      <div className="flex items-center gap-2">
+        {isExtensionMode && onOpenOriginal ? (
+          <Button
+            size="xs"
+            variant="outline"
+            onClick={onOpenOriginal}
+            disabled={!metadata.sourceUrl}
+            type="button"
+          >
+            Open Original
+          </Button>
+        ) : null}
+        <EditorToolbar
+          onFormat={formatJson}
+          onMinify={minifyJson}
+          onCopy={copyToClipboard}
+          onClear={clearEditor}
+          onGenerateTypes={generateTypes}
+          hasContent={hasFileContent}
+          isValid={isValid}
+          isVisible={activeTab === "editor"}
+        />
+        {!isExtensionMode ? <GitHubLink /> : null}
+        <ThemeSwitcher />
+      </div>
+    );
+  }, [
+    activeTab,
+    copyToClipboard,
+    formatJson,
+    generateTypes,
+    hasFileContent,
+    isExtensionMode,
+    isValid,
+    metadata.sourceUrl,
+    minifyJson,
+    onOpenOriginal,
+    clearEditor,
+  ]);
+
   return (
     <>
       <div className="h-screen flex flex-col">
@@ -265,23 +342,8 @@ export function JsonWorkspace() {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          leftActions={<div />}
-          actions={
-            <div className="flex items-center gap-2">
-              <EditorToolbar
-                onFormat={formatJson}
-                onMinify={minifyJson}
-                onCopy={copyToClipboard}
-                onClear={clearEditor}
-                onGenerateTypes={generateTypes}
-                hasContent={hasFileContent}
-                isValid={isValid}
-                isVisible={activeTab === "editor"}
-              />
-              <GitHubLink />
-              <ThemeSwitcher />
-            </div>
-          }
+          leftActions={leftActions}
+          actions={headerActions}
         />
         <div className="flex-1 min-h-0 overflow-hidden">{activeTabContent}</div>
       </div>
