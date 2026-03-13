@@ -5,8 +5,9 @@ import { JsonWorkspace } from "./json-workspace";
 import { useJsonStore } from "@/stores/json-document-store";
 import { toast } from "sonner";
 
-const FALLBACK_DELAY_MS = 1500;
 const STREAM_STALL_TIMEOUT_MS = 15000;
+const EMBEDDED_FALLBACK_DELAY_MS = STREAM_STALL_TIMEOUT_MS;
+const TOP_LEVEL_FALLBACK_DELAY_MS = 1500;
 const STATUS_TOAST_ID = "extension-payload-status";
 
 type TExtensionLoadPayload = {
@@ -144,7 +145,8 @@ const getSourceHost = (sourceUrl: string) => {
 };
 
 export function ExtensionPageClient() {
-  const [hasTimedOut, setHasTimedOut] = useState(false);
+  const [shouldLoadPersistedState, setShouldLoadPersistedState] =
+    useState(false);
   const [hasAcceptedPayload, setHasAcceptedPayload] = useState(false);
   const timeoutRef = useRef<number | null>(null);
   const stallTimeoutRef = useRef<number | null>(null);
@@ -192,8 +194,8 @@ export function ExtensionPageClient() {
         id: STATUS_TOAST_ID,
         description,
       });
-      setHasTimedOut(true);
       setHasAcceptedPayload(false);
+      setShouldLoadPersistedState(false);
     };
 
     const acceptPayload = async (payload: TExtensionLoadPayload) => {
@@ -230,12 +232,17 @@ export function ExtensionPageClient() {
       });
 
       setHasAcceptedPayload(true);
-      setHasTimedOut(false);
+      setShouldLoadPersistedState(false);
     };
 
+    const fallbackDelayMs =
+      window.parent === window
+        ? TOP_LEVEL_FALLBACK_DELAY_MS
+        : EMBEDDED_FALLBACK_DELAY_MS;
+
     timeoutRef.current = window.setTimeout(() => {
-      setHasTimedOut(true);
-    }, FALLBACK_DELAY_MS);
+      setShouldLoadPersistedState(true);
+    }, fallbackDelayMs);
 
     toast.loading("Waiting for payload", {
       id: STATUS_TOAST_ID,
@@ -374,11 +381,12 @@ export function ExtensionPageClient() {
   }, [loadJsonDocument]);
 
   useEffect(() => {
-    if (
-      hasAcceptedPayload ||
-      !hasTimedOut ||
-      hasShownFallbackToastRef.current
-    ) {
+    if (!shouldLoadPersistedState || hasAcceptedPayload) {
+      hasShownFallbackToastRef.current = false;
+      return;
+    }
+
+    if (hasShownFallbackToastRef.current) {
       return;
     }
 
@@ -387,13 +395,13 @@ export function ExtensionPageClient() {
       id: STATUS_TOAST_ID,
       description: "Using saved tab state.",
     });
-  }, [hasAcceptedPayload, hasTimedOut]);
+  }, [hasAcceptedPayload, shouldLoadPersistedState]);
 
   return (
     <main className="h-screen overflow-hidden bg-background text-foreground">
       <JsonWorkspace
         mode="extension"
-        shouldLoadPersistedState={hasTimedOut && !hasAcceptedPayload}
+        shouldLoadPersistedState={shouldLoadPersistedState && !hasAcceptedPayload}
       />
     </main>
   );
