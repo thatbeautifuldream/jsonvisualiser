@@ -136,21 +136,12 @@ const isPortMessage = (data: unknown): data is TExtensionPortMessage => {
   return data.type === "JSON_VISUALISER_PORT" && isPortPayload(data.payload);
 };
 
-const getSourceHost = (sourceUrl: string) => {
-  try {
-    return new URL(sourceUrl).hostname;
-  } catch {
-    return sourceUrl;
-  }
-};
-
 export function ExtensionPageClient() {
   const [shouldLoadPersistedState, setShouldLoadPersistedState] =
     useState(false);
   const [hasAcceptedPayload, setHasAcceptedPayload] = useState(false);
   const timeoutRef = useRef<number | null>(null);
   const stallTimeoutRef = useRef<number | null>(null);
-  const hasShownFallbackToastRef = useRef(false);
   const activePortRef = useRef<MessagePort | null>(null);
 
   const loadJsonDocument = useJsonStore((state) => state.loadJsonDocument);
@@ -225,11 +216,7 @@ export function ExtensionPageClient() {
       clearFallbackTimer();
       clearStallTimer();
       closeActivePort();
-
-      toast.success(`Loaded ${getSourceHost(payload.sourceUrl)}`, {
-        id: STATUS_TOAST_ID,
-        description: payload.contentType ?? "JSON is ready.",
-      });
+      toast.dismiss(STATUS_TOAST_ID);
 
       setHasAcceptedPayload(true);
       setShouldLoadPersistedState(false);
@@ -243,11 +230,6 @@ export function ExtensionPageClient() {
     timeoutRef.current = window.setTimeout(() => {
       setShouldLoadPersistedState(true);
     }, fallbackDelayMs);
-
-    toast.loading("Waiting for payload", {
-      id: STATUS_TOAST_ID,
-      description: "Waiting for page data.",
-    });
 
     const readyMessage: TExtensionReadyMessage = {
       type: "JSON_VISUALISER_READY",
@@ -284,11 +266,6 @@ export function ExtensionPageClient() {
       const transfer = event.data.payload;
       const chunks = new Array<string>(transfer.totalChunks);
       let expectedIndex = 0;
-
-      toast.loading(`Receiving ${getSourceHost(transfer.sourceUrl)}`, {
-        id: STATUS_TOAST_ID,
-        description: `${transfer.totalChunks} chunks queued.`,
-      });
 
       const onStall = () => {
         port.postMessage({
@@ -379,23 +356,6 @@ export function ExtensionPageClient() {
       toast.dismiss(STATUS_TOAST_ID);
     };
   }, [loadJsonDocument]);
-
-  useEffect(() => {
-    if (!shouldLoadPersistedState || hasAcceptedPayload) {
-      hasShownFallbackToastRef.current = false;
-      return;
-    }
-
-    if (hasShownFallbackToastRef.current) {
-      return;
-    }
-
-    hasShownFallbackToastRef.current = true;
-    toast.warning("No payload received", {
-      id: STATUS_TOAST_ID,
-      description: "Using saved tab state.",
-    });
-  }, [hasAcceptedPayload, shouldLoadPersistedState]);
 
   return (
     <main className="h-screen overflow-hidden bg-background text-foreground">
