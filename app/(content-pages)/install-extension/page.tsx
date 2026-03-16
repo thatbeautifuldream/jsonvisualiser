@@ -27,23 +27,33 @@ export default function InstallExtensionPage() {
             className="relative left-[calc(50%-11rem)] aspect-1155/678 w-144.5 -translate-x-1/2 rotate-30 bg-linear-to-tr from-primary to-accent opacity-30 sm:left-[calc(50%-30rem)] sm:w-288.75"
           />
         </div>
-        <div className="py-16 sm:py-24 lg:pb-32">
+        <div className="px-4 py-14 sm:px-6 sm:py-24 lg:px-8 lg:pb-32">
           <div className="mx-auto max-w-2xl text-center">
-            <h1 className="text-5xl font-semibold tracking-tight text-balance text-foreground sm:text-7xl">
-              Install the JSON Visualiser Chrome extension
+            <h1 className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl lg:text-7xl">
+              <span className="sm:hidden">Install the JSON Visualiser extension</span>
+              <span className="hidden sm:inline">
+                Install the JSON Visualiser Chrome extension
+              </span>
             </h1>
-            <p className="mt-8 text-lg font-medium text-pretty text-muted-foreground sm:text-xl/8">
-              Open raw JSON responses in a cleaner interface with formatting,
-              validation, tree view, and graph view directly in Chrome.
+            <p className="mt-5 text-base leading-7 font-medium text-pretty text-muted-foreground sm:mt-8 sm:text-lg sm:leading-8 lg:text-xl lg:leading-8">
+              <span className="sm:hidden">
+                Open raw JSON in a cleaner Chrome interface with formatting,
+                validation, tree and graph views.
+              </span>
+              <span className="hidden sm:inline">
+                Open raw JSON responses in a cleaner interface with formatting,
+                validation, tree view, and graph view directly in Chrome.
+              </span>
             </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Button asChild size="lg">
+            <div className="mt-8 flex items-center justify-center gap-x-6 sm:mt-10">
+              <Button asChild size="lg" className="text-sm sm:text-base">
                 <Link
                   href="https://chromewebstore.google.com/detail/json-visualiser/ahamfjjhmjpiiogljnpgogegjcecmmll"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Install Chrome extension
+                  <span className="sm:hidden">Install extension</span>
+                  <span className="hidden sm:inline">Install Chrome extension</span>
                 </Link>
               </Button>
             </div>
