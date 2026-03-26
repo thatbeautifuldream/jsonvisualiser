@@ -58,7 +58,7 @@ export function EditorToolbar({
         Minify
       </ToolbarButton>
       <ToolbarButton onClick={onUnescapeJson} disabled={!hasContent}>
-        JSON Unescape
+        Unescape
       </ToolbarButton>
       <ToolbarButton onClick={onCopy} disabled={!hasContent}>
         Copy
