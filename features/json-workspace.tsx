@@ -22,6 +22,7 @@ import { JsonGraphViewer } from "@/components/json-graph-viewer";
 import { TypeGeneratorDialog } from "./type-generator-dialog";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { GitHubLink } from "./github-link";
+import { unescapeJsonText } from "@/lib/unescape-json";
 
 type EditorTheme = "light" | "hc-black";
 
@@ -144,6 +145,25 @@ export function JsonWorkspace({
       console.error("Minification error:", err);
     }
   }, [isValid, setJsonContent, saveJson]);
+
+  const unescapeJson = useCallback(() => {
+    if (!editorRef.current) return;
+
+    const currentValue = editorRef.current.getValue();
+    const { value, replacementCount } = unescapeJsonText(currentValue);
+
+    if (replacementCount === 0) {
+      toast.error("No supported escape sequences found");
+      return;
+    }
+
+    editorRef.current.setValue(value);
+    startTransition(() => {
+      setJsonContent(value);
+      saveJson(value);
+    });
+    toast.success("JSON escape sequences removed");
+  }, [saveJson, setJsonContent]);
 
   const copyToClipboard = useCallback(async () => {
     if (!editorRef.current) return;
@@ -303,6 +323,7 @@ export function JsonWorkspace({
         <EditorToolbar
           onFormat={formatJson}
           onMinify={minifyJson}
+          onUnescapeJson={unescapeJson}
           onCopy={copyToClipboard}
           onClear={clearEditor}
           onGenerateTypes={generateTypes}
@@ -322,6 +343,7 @@ export function JsonWorkspace({
     hasFileContent,
     isValid,
     minifyJson,
+    unescapeJson,
     clearEditor,
   ]);
 

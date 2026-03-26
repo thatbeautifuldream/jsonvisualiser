@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 type TEditorToolbarProps = {
   onFormat: () => void;
   onMinify: () => void;
+  onUnescapeJson: () => void;
   onCopy: () => void;
   onClear: () => void;
   onGenerateTypes?: () => void;
@@ -38,6 +39,7 @@ const ToolbarButton = ({
 export function EditorToolbar({
   onFormat,
   onMinify,
+  onUnescapeJson,
   onCopy,
   onClear,
   onGenerateTypes,
@@ -54,6 +56,9 @@ export function EditorToolbar({
       </ToolbarButton>
       <ToolbarButton onClick={onMinify} disabled={!isValid || !hasContent}>
         Minify
+      </ToolbarButton>
+      <ToolbarButton onClick={onUnescapeJson} disabled={!hasContent}>
+        Unescape
       </ToolbarButton>
       <ToolbarButton onClick={onCopy} disabled={!hasContent}>
         Copy
