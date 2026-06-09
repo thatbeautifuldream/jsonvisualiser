@@ -6,6 +6,7 @@ import { linter, lintGutter } from "@codemirror/lint";
 import { foldAll, unfoldAll, foldGutter } from "@codemirror/language";
 import { EditorView, keymap } from "@codemirror/view";
 import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
+import { getEditorTheme } from "@/lib/codemirror-themes";
 
 export type TJsonEditorHandle = {
 	getValue: () => string;
@@ -85,7 +86,7 @@ export const JsonEditor = forwardRef<TJsonEditorHandle, TJsonEditorProps>(
 					value={value}
 					height="100%"
 					style={{ height: "100%" }}
-					theme={theme}
+					theme={getEditorTheme(theme)}
 					extensions={extensions}
 					onChange={(next) => onChange(next)}
 					basicSetup={{

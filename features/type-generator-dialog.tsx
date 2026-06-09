@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { EditorView } from "@codemirror/view";
+import { getEditorTheme } from "@/lib/codemirror-themes";
 
 type TTypeGeneratorDialogProps = {
   open: boolean;
@@ -43,7 +44,7 @@ export function TypeGeneratorDialog({
             value={types}
             height="100%"
             style={{ height: "100%" }}
-            theme={theme}
+            theme={getEditorTheme(theme)}
             readOnly
             extensions={[
               javascript({ typescript: true }),
