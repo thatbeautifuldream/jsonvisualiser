@@ -56,6 +56,18 @@ export const ThemeSwitcher = ({
         setMounted(true);
     }, []);
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
+                event.preventDefault();
+                setInternalTheme(theme === 'dark' ? 'light' : 'dark');
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [theme, setInternalTheme]);
+
     if (!mounted) {
         return null;
     }
