@@ -24,6 +24,7 @@
 /build
 
 # misc
+.knowledge/
 .DS_Store
 *.pem
 
