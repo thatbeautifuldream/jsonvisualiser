@@ -3,14 +3,22 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import jsonToTs from "json-to-ts";
 import { useMemo } from "react";
-import Editor from "@monaco-editor/react";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { EditorView } from "@codemirror/view";
+import { getEditorTheme } from "@/lib/codemirror-themes";
 
 type TTypeGeneratorDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   jsonContent: string;
-  theme: "light" | "hc-black";
+  theme: "light" | "dark";
 };
+
+const editorFont = EditorView.theme({
+  "&": { fontSize: "12px", height: "100%" },
+  ".cm-content": { fontFamily: "var(--font-geist-mono)" },
+});
 
 export function TypeGeneratorDialog({
   open,
@@ -31,28 +39,23 @@ export function TypeGeneratorDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
-        <div className="flex-1 overflow-hidden">
-          <Editor
-            height="100%"
-            defaultLanguage="typescript"
+        <div className="flex-1 overflow-auto">
+          <CodeMirror
             value={types}
-            theme={theme}
-            options={{
-              readOnly: true,
-              minimap: { enabled: false },
-              fontSize: 12,
-              fontFamily: "var(--font-geist-mono)",
-              lineNumbers: "off",
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-              tabSize: 2,
-              wordWrap: "on",
+            height="100%"
+            style={{ height: "100%" }}
+            theme={getEditorTheme(theme)}
+            readOnly
+            extensions={[
+              javascript({ typescript: true }),
+              EditorView.lineWrapping,
+              editorFont,
+            ]}
+            basicSetup={{
+              lineNumbers: false,
+              foldGutter: false,
+              highlightActiveLine: false,
             }}
-            loading={
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                Loading editor...
-              </div>
-            }
           />
         </div>
       </DialogContent>

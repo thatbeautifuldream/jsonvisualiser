@@ -1,7 +1,5 @@
 "use client";
 
-import type { Monaco } from "@monaco-editor/react";
-import type { editor } from "monaco-editor";
 import { useTheme } from "next-themes";
 import {
   useCallback,
@@ -14,7 +12,7 @@ import {
 import { toast } from "sonner";
 import { WorkspaceHeader } from "./workspace-header";
 import { EditorToolbar } from "./editor-toolbar";
-import { JsonEditor } from "./json-editor";
+import { JsonEditor, type TJsonEditorHandle } from "./json-editor";
 import { JsonTreeViewer } from "./json-tree-viewer";
 import { StatusBar } from "./status-bar";
 import { useJsonStore } from "@/stores/json-document-store";
@@ -24,7 +22,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { GitHubLink } from "./github-link";
 import { unescapeJsonText } from "@/lib/unescape-json";
 
-type EditorTheme = "light" | "hc-black";
+type EditorTheme = "light" | "dark";
 
 type TJsonWorkspaceProps = {
   mode?: "default" | "extension";
@@ -35,12 +33,11 @@ export function JsonWorkspace({
   mode = "default",
   shouldLoadPersistedState = true,
 }: TJsonWorkspaceProps) {
-  const [editorTheme, setEditorTheme] = useState<EditorTheme>("hc-black");
+  const [editorTheme, setEditorTheme] = useState<EditorTheme>("dark");
   const [activeTab, setActiveTab] = useState("editor");
   const [isTypeDialogOpen, setIsTypeDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const monacoRef = useRef<Monaco | null>(null);
+  const editorRef = useRef<TJsonEditorHandle | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
 
   const { theme: appTheme } = useTheme();
@@ -84,49 +81,21 @@ export function JsonWorkspace({
     [setJsonContent, saveJson],
   );
 
-  const handleEditorDidMount = useCallback(
-    (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-      editorRef.current = editor;
-      monacoRef.current = monaco;
-
-      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-        validate: true,
-        allowComments: false,
-        schemas: [],
-        enableSchemaRequest: true,
-      });
-
-      editor.addCommand(
-        monaco.KeyMod.chord(
-          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK,
-          monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0,
-        ),
-        () => {
-          editor.getAction("editor.foldAll")?.run();
-        },
-      );
-
-      editor.addCommand(
-        monaco.KeyMod.chord(
-          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK,
-          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyJ,
-        ),
-        () => {
-          editor.getAction("editor.unfoldAll")?.run();
-        },
-      );
-    },
-    [],
-  );
-
   const formatJson = useCallback(() => {
     if (!editorRef.current) return;
 
-    const action = editorRef.current.getAction("editor.action.formatDocument");
-    if (action) {
-      action.run();
+    try {
+      const currentValue = editorRef.current.getValue();
+      const formatted = JSON.stringify(JSON.parse(currentValue), null, 2);
+      editorRef.current.setValue(formatted);
+      startTransition(() => {
+        setJsonContent(formatted);
+        saveJson(formatted);
+      });
+    } catch {
+      toast.error("Cannot format invalid JSON");
     }
-  }, []);
+  }, [setJsonContent, saveJson]);
 
   const minifyJson = useCallback(async () => {
     if (!editorRef.current || !isValid) return;
@@ -189,11 +158,7 @@ export function JsonWorkspace({
   }, []);
 
   useEffect(() => {
-    if (appTheme === "dark") {
-      setEditorTheme("hc-black");
-    } else {
-      setEditorTheme("light");
-    }
+    setEditorTheme(appTheme === "dark" ? "dark" : "light");
   }, [appTheme]);
 
   useEffect(() => {
@@ -219,9 +184,9 @@ export function JsonWorkspace({
           <div className="border flex flex-col h-full">
             <div className="flex-1 min-h-0">
               <JsonEditor
+                ref={editorRef}
                 value={jsonContent}
                 onChange={handleEditorChange}
-                onMount={handleEditorDidMount}
                 theme={editorTheme}
               />
             </div>
@@ -276,7 +241,6 @@ export function JsonWorkspace({
   }, [
     jsonContent,
     handleEditorChange,
-    handleEditorDidMount,
     editorTheme,
     isValid,
     parsedJson,

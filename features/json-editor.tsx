@@ -1,49 +1,103 @@
 "use client";
 
-import Editor, { type Monaco } from "@monaco-editor/react";
-import type { editor } from "monaco-editor";
+import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import { json, jsonParseLinter } from "@codemirror/lang-json";
+import { linter, lintGutter } from "@codemirror/lint";
+import { foldAll, unfoldAll, foldGutter } from "@codemirror/language";
+import { EditorView, keymap } from "@codemirror/view";
+import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
+import { getEditorTheme } from "@/lib/codemirror-themes";
+
+export type TJsonEditorHandle = {
+	getValue: () => string;
+	setValue: (value: string) => void;
+	foldAll: () => void;
+	unfoldAll: () => void;
+};
 
 type TJsonEditorProps = {
 	value: string;
 	onChange: (value: string | undefined) => void;
-	onMount: (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => void;
-	theme: "light" | "hc-black";
+	theme: "light" | "dark";
 	className?: string;
 };
 
-export function JsonEditor({
-	value,
-	onChange,
-	onMount,
-	theme,
-	className = "",
-}: TJsonEditorProps) {
-	return (
-		<div className={`h-full ${className}`}>
-			<Editor
-				height="100%"
-				defaultLanguage="json"
-				value={value}
-				theme={theme}
-				onChange={onChange}
-				onMount={onMount}
-				options={{
-					minimap: { enabled: true },
-					fontSize: 12,
-					fontFamily: "var(--font-geist-mono)",
-					lineNumbers: "on",
-					roundedSelection: false,
-					scrollBeyondLastLine: false,
-					automaticLayout: true,
-					tabSize: 2,
-					insertSpaces: true,
-					wordWrap: "on",
-					folding: true,
-					foldingStrategy: "indentation",
-					showFoldingControls: "always",
-					bracketPairColorization: { enabled: true },
-				}}
-			/>
-		</div>
-	);
-}
+const editorFont = EditorView.theme({
+	"&": { fontSize: "12px", height: "100%" },
+	".cm-content": { fontFamily: "var(--font-geist-mono)" },
+	".cm-gutters": { fontFamily: "var(--font-geist-mono)" },
+});
+
+export const JsonEditor = forwardRef<TJsonEditorHandle, TJsonEditorProps>(
+	function JsonEditor({ value, onChange, theme, className = "" }, ref) {
+		const cmRef = useRef<ReactCodeMirrorRef>(null);
+
+		useImperativeHandle(ref, () => ({
+			getValue: () => cmRef.current?.view?.state.doc.toString() ?? "",
+			setValue: (next: string) => {
+				const view = cmRef.current?.view;
+				if (!view) return;
+				view.dispatch({
+					changes: { from: 0, to: view.state.doc.length, insert: next },
+				});
+			},
+			foldAll: () => {
+				const view = cmRef.current?.view;
+				if (view) foldAll(view);
+			},
+			unfoldAll: () => {
+				const view = cmRef.current?.view;
+				if (view) unfoldAll(view);
+			},
+		}));
+
+		const extensions = useMemo(
+			() => [
+				json(),
+				linter(jsonParseLinter()),
+				lintGutter(),
+				foldGutter(),
+				EditorView.lineWrapping,
+				editorFont,
+				keymap.of([
+					{
+						key: "Mod-k Mod-0",
+						run: (view) => {
+							foldAll(view);
+							return true;
+						},
+					},
+					{
+						key: "Mod-k Mod-j",
+						run: (view) => {
+							unfoldAll(view);
+							return true;
+						},
+					},
+				]),
+			],
+			[],
+		);
+
+		return (
+			<div className={`h-full ${className}`}>
+				<CodeMirror
+					ref={cmRef}
+					value={value}
+					height="100%"
+					style={{ height: "100%" }}
+					theme={getEditorTheme(theme)}
+					extensions={extensions}
+					onChange={(next) => onChange(next)}
+					basicSetup={{
+						lineNumbers: true,
+						foldGutter: false,
+						bracketMatching: true,
+						highlightActiveLine: true,
+						tabSize: 2,
+					}}
+				/>
+			</div>
+		);
+	},
+);
