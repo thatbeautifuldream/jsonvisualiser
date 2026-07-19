@@ -1,4 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#0a0a0a"/>
-  <text x="256" y="348" font-family="Menlo, Consolas, monospace" font-size="256" font-weight="bold" fill="#ffffff" text-anchor="middle">{ }</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="0.3" cy="0.2" r="1.1">
+      <stop offset="0" stop-color="#232326"/>
+      <stop offset="0.55" stop-color="#141416"/>
+      <stop offset="1" stop-color="#0a0a0b"/>
+    </radialGradient>
+    <linearGradient id="brace" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fafafa"/>
+      <stop offset="1" stop-color="#c9c9cf"/>
+    </linearGradient>
+    <linearGradient id="dot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff8a3d"/>
+      <stop offset="1" stop-color="#e8590c"/>
+    </linearGradient>
+    <clipPath id="shape">
+      <rect width="512" height="512" rx="115"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#shape)">
+    <rect width="512" height="512" fill="url(#bg)"/>
+  </g>
+  <rect x="1" y="1" width="510" height="510" rx="114" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="2"/>
+  <g fill="none" stroke="url(#brace)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 198 128 C 162 128 152 146 152 178 L 152 214 C 152 242 140 252 118 256 C 140 260 152 270 152 298 L 152 334 C 152 366 162 384 198 384"/>
+    <path d="M 314 128 C 350 128 360 146 360 178 L 360 214 C 360 242 372 252 394 256 C 372 260 360 270 360 298 L 360 334 C 360 366 350 384 314 384"/>
+  </g>
+  <g fill="url(#dot)">
+    <circle cx="256" cy="212" r="19"/>
+    <circle cx="256" cy="300" r="19"/>
+  </g>
 </svg>
