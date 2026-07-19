@@ -117,6 +117,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Apply a squircle curve to every rounded corner in the app.
+     corner-shape modifies the corner curve; border-radius (from rounded-* classes) sets its extent. */
+  * {
+    corner-shape: squircle;
+  }
   body {
     @apply bg-background text-foreground;
   }

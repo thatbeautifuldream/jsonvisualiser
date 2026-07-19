@@ -1,8 +1,10 @@
 import { JsonLd } from "@/components/json-ld";
+import { ServiceWorkerProvider } from "@/components/providers/service-worker-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToasterProvider } from "@/components/providers/toaster-provider";
 import { createMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
+import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -44,6 +46,13 @@ const softwareApplicationSchema = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+};
+
 export const metadata = createMetadata({
   title: "JSON Visualiser - Free Online JSON Editor with Tree & Graph Views",
   description:
@@ -77,6 +86,7 @@ export default function RootLayout({
           <div className="h-full flex flex-col">{children}</div>
           <ToasterProvider />
         </ThemeProvider>
+        <ServiceWorkerProvider />
       </body>
     </html>
   );
