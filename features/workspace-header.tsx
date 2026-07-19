@@ -33,13 +33,13 @@ export function WorkspaceHeader({
         className,
       )}
     >
-      <div className="flex items-center gap-2">
-        {leftActions && <div className="px-3 py-1">{leftActions}</div>}
+      <div className="flex items-center gap-2 min-w-0">
+        {leftActions && <div className="px-3 py-1 min-w-0">{leftActions}</div>}
         {tabs && tabs.length > 0 && (
           <div
             role="tablist"
             aria-label="Workspace Tabs"
-            className="flex"
+            className="flex overflow-x-auto whitespace-nowrap"
             onKeyDown={(e) => {
               if (!tabs || tabs.length === 0) return;
               const currentIdx = tabs.findIndex((tab) => tab.id === activeTab);
@@ -90,7 +90,7 @@ export function WorkspaceHeader({
                   className={cn(
                     "relative px-4 py-2 cursor-pointer select-none text-xs font-medium",
                     "transition-all duration-150 ease-in-out",
-                    "min-w-0 flex items-center gap-2 h-8",
+                    "shrink-0 flex items-center gap-2 h-8",
                     "border border-transparent border-r-border/50",
                     selected
                       ? cn(
@@ -118,10 +118,8 @@ export function WorkspaceHeader({
           </div>
         )}
       </div>
-      <div className="flex items-center gap-2 px-3 py-1">
-        <div className="flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
-          {actions}
-        </div>
+      <div className="flex items-center gap-2 px-3 py-1 shrink-0">
+        <div className="flex items-center gap-2">{actions}</div>
       </div>
     </div>
   );

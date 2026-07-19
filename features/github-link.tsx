@@ -45,7 +45,7 @@ export function GitHubLink() {
       asChild
       size="sm"
       variant="ghost"
-      className="h-8 shadow-none cursor-pointer"
+      className="hidden sm:inline-flex h-8 shadow-none cursor-pointer"
     >
       <Link href={siteConfig.links.github} target="_blank" rel="noreferrer">
         <div className="flex items-center gap-2">

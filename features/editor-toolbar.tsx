@@ -19,14 +19,16 @@ const ToolbarButton = ({
   onClick,
   children,
   disabled,
+  className = "",
 }: {
   onClick: () => void;
   children: React.ReactNode;
   disabled: boolean;
+  className?: string;
 }) => (
   <Button
     onClick={onClick}
-    className="text-xs"
+    className={`text-xs ${className}`}
     disabled={disabled}
     size="xs"
     variant="ghost"
@@ -54,20 +56,36 @@ export function EditorToolbar({
       <ToolbarButton onClick={onFormat} disabled={!hasContent}>
         Format
       </ToolbarButton>
-      <ToolbarButton onClick={onMinify} disabled={!isValid || !hasContent}>
+      <ToolbarButton
+        onClick={onMinify}
+        disabled={!isValid || !hasContent}
+        className="hidden sm:inline-flex"
+      >
         Minify
       </ToolbarButton>
-      <ToolbarButton onClick={onUnescapeJson} disabled={!hasContent}>
+      <ToolbarButton
+        onClick={onUnescapeJson}
+        disabled={!hasContent}
+        className="hidden sm:inline-flex"
+      >
         Unescape
       </ToolbarButton>
       <ToolbarButton onClick={onCopy} disabled={!hasContent}>
         Copy
       </ToolbarButton>
-      <ToolbarButton onClick={onClear} disabled={!hasContent}>
+      <ToolbarButton
+        onClick={onClear}
+        disabled={!hasContent}
+        className="hidden sm:inline-flex"
+      >
         Clear
       </ToolbarButton>
       {onGenerateTypes && (
-        <ToolbarButton onClick={onGenerateTypes} disabled={!isValid || !hasContent}>
+        <ToolbarButton
+          onClick={onGenerateTypes}
+          disabled={!isValid || !hasContent}
+          className="hidden sm:inline-flex"
+        >
           Generate Types
         </ToolbarButton>
       )}
