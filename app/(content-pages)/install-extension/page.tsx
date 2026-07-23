@@ -38,11 +38,11 @@ export default function InstallExtensionPage() {
             <p className="mt-5 text-base leading-7 font-medium text-pretty text-muted-foreground sm:mt-8 sm:text-lg sm:leading-8 lg:text-xl lg:leading-8">
               <span className="sm:hidden">
                 Open raw JSON in a cleaner Chrome interface with formatting,
-                validation, tree and graph views.
+                validation, and tree view.
               </span>
               <span className="hidden sm:inline">
                 Open raw JSON responses in a cleaner interface with formatting,
-                validation, tree view, and graph view directly in Chrome.
+                validation, and tree view directly in Chrome.
               </span>
             </p>
             <div className="mt-8 flex items-center justify-center gap-x-6 sm:mt-10">

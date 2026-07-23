@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, X, Coffee } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { forwardRef } from "react";
 import NumberFlow from "@number-flow/react";
 import Link from "next/link";
@@ -34,12 +34,11 @@ export const StatusBar = forwardRef<HTMLDivElement, TStatusBarProps>(
       >
         <div className="flex items-center gap-4">
           <Link
-            href={siteConfig.links.sponsor}
+            href={siteConfig.links.portfolio}
             target="_blank"
             className="hover:text-muted-foreground transition-colors flex items-center gap-1"
           >
-            <Coffee size={12} />
-            Buy me a Chai
+            By Milind Mishra
           </Link>
           {hasContent && (
             <span className="font-medium flex items-center">

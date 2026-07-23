@@ -10,7 +10,7 @@ export const metadata = createMetadata({
   title: page ? page.title : "JSON Editor Online - Free No-Registration Editor",
   description: page
     ? page.description
-    : "Free online JSON editor with Monaco syntax highlighting, tree view, and graph visualization. For developers, data analysts, and QA engineers.",
+    : "Free online JSON editor with Monaco syntax highlighting and tree view. For developers, data analysts, and QA engineers.",
   canonical: "https://jsonvisualiser.com/json-editor-online",
 });
 
@@ -27,7 +27,6 @@ const softwareApplicationSchema = {
   },
   featureList: [
     "JSON Tree View",
-    "JSON Graph Visualization",
     "Monaco Editor Syntax Highlighting",
     "Dark/Light Theme",
     "Session Storage Persistence",
@@ -53,7 +52,7 @@ export default function JsonEditorOnlinePage() {
         <h2 className="text-3xl font-bold mb-4">Try JSON Visualiser Now</h2>
         <p className="text-lg mb-6">
           No registration. No download. No limits. Start editing JSON in seconds
-          with professional Monaco editing, tree and graph visualization, and
+          with professional Monaco editing, tree visualization, and
           privacy-first design.
         </p>
         <div className="flex flex-wrap gap-4">

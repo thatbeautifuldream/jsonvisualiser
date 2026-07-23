@@ -1,11 +1,11 @@
 ---
 title: Best JSON Editor Online in 2026
-description: A free, no-registration JSON editor with Monaco syntax highlighting, tree view, and graph visualization. Perfect for developers, data analysts, and QA engineers who need a simple, powerful tool.
+description: A free, no-registration JSON editor with Monaco syntax highlighting and tree view. Perfect for developers, data analysts, and QA engineers who need a simple, powerful tool.
 ---
 
 # Best JSON Editor Online in 2026
 
-A free, no-registration JSON editor with Monaco syntax highlighting, tree view, and graph visualization. Perfect for developers, data analysts, and QA engineers who need a simple, powerful tool.
+A free, no-registration JSON editor with Monaco syntax highlighting and tree view. Perfect for developers, data analysts, and QA engineers who need a simple, powerful tool.
 
 _Last updated: March 2026 • Free forever: No subscription, no limits_
 
@@ -25,9 +25,9 @@ Your content stays in your browser's session storage. We don't store, track, or 
 
 Powered by the same editor used in VS Code. Professional-grade syntax highlighting, auto-indentation, and keyboard shortcuts out of the box.
 
-### Tree & Graph Views
+### Tree View
 
-Visualize your JSON structure with an interactive tree view or explore relationships with our force-directed graph visualization.
+Visualize your JSON structure with an interactive, collapsible tree view.
 
 ### Real-time Validation
 
@@ -48,7 +48,6 @@ Your work auto-saves to browser storage. Refresh the page and continue where you
 | Registration Required | No              | No       | No          | No              |
 | Syntax Highlighting   | Yes (Monaco)    | Yes      | Yes         | Yes             |
 | Tree View             | Yes             | No       | Yes         | Yes             |
-| Graph Visualization   | Yes             | No       | No          | No              |
 | Dark Mode             | Yes             | No       | Yes         | Yes             |
 | Session Storage       | Yes             | No       | Yes         | No              |
 | Server-Side Storage   | No (Privacy)    | No       | Optional    | No              |
@@ -66,7 +65,7 @@ Debug API responses, validate data structures, and explore nested JSON objects. 
 
 ### Data Analysts
 
-Transform and analyze JSON datasets with visual tools. The tree view lets you navigate complex structures, while the graph view reveals relationships between data points.
+Transform and analyze JSON datasets with visual tools. The tree view lets you navigate complex structures with ease.
 
 ### QA Engineers
 
@@ -98,16 +97,6 @@ Navigate complex JSON structures with our collapsible tree view:
 - See data types at a glance (string, number, boolean, array, object)
 - Search keys and values across the entire document
 - Copy values to clipboard with one click
-
-### Force-Directed Graph Visualization
-
-Visualize relationships in your JSON data:
-
-- Nodes represent objects and arrays
-- Edges show parent-child relationships
-- Interactive: drag nodes, zoom in/out
-- Identify circular references
-- See data structure at a macro level
 
 ### Real-time Validation
 
@@ -155,7 +144,7 @@ Edit JSON configuration files with syntax highlighting. Validate before saving t
 
 ### Data Exploration
 
-Understand complex JSON datasets. Use tree view to navigate nested structures or graph view to see relationships.
+Understand complex JSON datasets. Use tree view to navigate nested structures.
 
 ### Debugging
 
@@ -163,8 +152,8 @@ Identify JSON parsing errors in your applications. See exact error locations and
 
 ### Learning JSON
 
-Practice JSON syntax with real-time validation. See how structures are rendered in tree and graph views.
+Practice JSON syntax with real-time validation. See how structures are rendered in tree view.
 
-No registration. No download. No limits. Start editing JSON in seconds with professional Monaco editing, tree and graph visualization, and privacy-first design.
+No registration. No download. No limits. Start editing JSON in seconds with professional Monaco editing, tree visualization, and privacy-first design.
 
 **Comparison Data:** Feature comparison based on publicly available documentation as of March 2026. JSONLint focuses on validation only. JSON Editor offers optional cloud sync. Chrome DevTools requires opening browser dev tools.

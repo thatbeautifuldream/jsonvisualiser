@@ -31,7 +31,6 @@ const softwareApplicationSchema = {
   },
   featureList: [
     "JSON Tree View",
-    "JSON Graph Visualization",
     "Monaco Editor Syntax Highlighting",
     "JSON Validation",
     "JSON Formatting",
@@ -54,9 +53,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata = createMetadata({
-  title: "JSON Visualiser - Free Online JSON Editor with Tree & Graph Views",
+  title: "JSON Visualiser - Free Online JSON Editor with Tree View",
   description:
-    "Visualize, validate, and format JSON data with ease. A free, no-registration JSON editor with Monaco syntax highlighting, tree view, and graph visualization.",
+    "Visualize, validate, and format JSON data with ease. A free, no-registration JSON editor with Monaco syntax highlighting and tree view.",
   canonical: "https://jsonvisualiser.com",
 });
 

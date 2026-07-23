@@ -446,6 +446,6 @@ NoSQL databases like MongoDB store data as JSON-like documents:
 - **JSON Schema:** [json-schema.org](https://json-schema.org/)
 - **Online Testers:** JSONLint, JSON Editor Online
 
-Practice your JSON skills with our free online editor. Features include real-time validation, tree view, graph visualization, and formatting tools—all without registration.
+Practice your JSON skills with our free online editor. Features include real-time validation, tree view, and formatting tools—all without registration.
 
 **References:** RFC 8259 (JSON specification), ECMA-404, MDN JSON documentation.

@@ -80,7 +80,7 @@ export default function JsonGuidePage() {
         <h2 className="text-3xl font-bold mb-4">Practice Your JSON Skills</h2>
         <p className="text-lg mb-6">
           Learn JSON by doing. Our free online editor includes real-time
-          validation, tree view, graph visualization, and formatting tools to
+          validation, tree view, and formatting tools to
           help you master JSON—all without registration.
         </p>
         <Link

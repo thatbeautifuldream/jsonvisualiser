@@ -23,7 +23,7 @@ This policy applies to:
 
 ### JSON Content You Choose to Load
 
-When you paste, edit, or load JSON into JSON Visualiser, that content is processed in your browser so the app can render the editor, tree view, graph view, validation results, and formatting tools.
+When you paste, edit, or load JSON into JSON Visualiser, that content is processed in your browser so the app can render the editor, tree view, validation results, and formatting tools.
 
 If you use the browser extension workflow, the extension may pass JSON content and the source page URL into the JSON Visualiser extension page so the content can be displayed and explored.
 

@@ -16,7 +16,6 @@ import { JsonEditor, type TJsonEditorHandle } from "./json-editor";
 import { JsonTreeViewer } from "./json-tree-viewer";
 import { StatusBar } from "./status-bar";
 import { useJsonStore } from "@/stores/json-document-store";
-import { JsonGraphViewer } from "@/components/json-graph-viewer";
 import { TypeGeneratorDialog } from "./type-generator-dialog";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { GitHubLink } from "./github-link";
@@ -207,33 +206,6 @@ export function JsonWorkspace({
         id: "tree",
         label: "Tree View",
         content: <JsonTreeViewer data={parsedJson} className="w-full h-full" />,
-      });
-
-      baseTabs.push({
-        id: "graph",
-        label: "Graph View",
-        content: (
-          <JsonGraphViewer
-            data={parsedJson}
-            preset="deep"
-            onNodeClick={(node, path) => {
-              console.log("Node clicked:", { node, path });
-            }}
-            options={{
-              maxDepth: 4,
-              createHierarchicalLinks: true,
-              createArrayLinks: false,
-              getNodeText: (key, value, path) => {
-                if (key === "root") return "JSON Root";
-                if (typeof value === "string" && value.length < 20)
-                  return value;
-                if (typeof value === "number") return String(value);
-                return key;
-              },
-            }}
-            className="w-full h-full"
-          />
-        ),
       });
     }
 

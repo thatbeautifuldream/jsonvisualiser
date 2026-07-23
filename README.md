@@ -16,7 +16,6 @@ A web application for understanding and visualizing JSON payloads through multip
 **Visualization Views**
 
 - Tree View: Interactive, collapsible tree structure for easy navigation
-- Graph View: Force-directed graph visualization to understand data relationships
 
 **File Management**
 
@@ -43,7 +42,6 @@ A web application for understanding and visualizing JSON payloads through multip
 - **Zustand** - State management
 - **Dexie.js** - IndexedDB wrapper
 - **React JSON Tree** - Tree visualization
-- **React Force Graph** - Graph visualization
 
 ## Getting Started
 

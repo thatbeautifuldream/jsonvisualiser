@@ -118,7 +118,7 @@ Use the formatting toolbar:
 
 ### Step 4: Copy or Export
 
-Copy the formatted JSON to your clipboard, or use the tree/graph views to explore the structure.
+Copy the formatted JSON to your clipboard, or use the tree view to explore the structure.
 
 ## Format Examples
 

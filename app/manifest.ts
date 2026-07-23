@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "JSON Visualiser",
     short_name: "JSON Visualiser",
     description:
-      "Visualize, validate, and format JSON data with tree and graph views.",
+      "Visualize, validate, and format JSON data with tree view.",
     start_url: "/",
     display: "standalone",
     background_color: "#0a0a0a",

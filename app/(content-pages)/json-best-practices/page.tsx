@@ -84,8 +84,8 @@ export default function JsonBestPracticesPage() {
         </h2>
         <p className="text-lg mb-6">
           Check your JSON structure and format with our free online editor.
-          Features include real-time validation, best practices checker, tree
-          view, and graph visualization—all without registration.
+          Features include real-time validation, best practices checker, and
+          tree view—all without registration.
         </p>
         <Link
           href="/"

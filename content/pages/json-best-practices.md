@@ -580,6 +580,6 @@ test("GET /api/users returns valid JSON", async () => {
 }
 ```
 
-Validate, format, and explore your JSON with our free online editor. Features include real-time validation, tree view, graph visualization, and best practices checker—all without registration.
+Validate, format, and explore your JSON with our free online editor. Features include real-time validation, tree view, and best practices checker—all without registration.
 
 **References:** RFC 8259, JSON Schema specification, OWASP API Security Guidelines.
