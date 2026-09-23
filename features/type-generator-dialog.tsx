@@ -17,7 +17,7 @@ type TTypeGeneratorDialogProps = {
 
 const editorFont = EditorView.theme({
   "&": { fontSize: "12px", height: "100%" },
-  ".cm-content": { fontFamily: "var(--font-geist-mono)" },
+  ".cm-content": { fontFamily: "var(--font-mono)" },
 });
 
 export function TypeGeneratorDialog({

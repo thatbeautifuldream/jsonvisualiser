@@ -1,6 +1,6 @@
 import { createMetadata } from "@/lib/metadata";
 import { allPages } from "content-collections";
-import { Streamdown } from "streamdown";
+import { StreamdownWrapper } from "@/components/streamdown-wrapper";
 
 const page = allPages.find((p) => p.slug === "privacy-policy");
 
@@ -13,5 +13,5 @@ export const metadata = createMetadata({
 });
 
 export default function PrivacyPolicyPage() {
-  return <Streamdown>{page?.content || ""}</Streamdown>;
+  return <StreamdownWrapper content={page?.content || ""} />;
 }

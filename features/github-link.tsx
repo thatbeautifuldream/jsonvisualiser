@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { siteConfig } from "@/lib/config";
 import { GitHub } from "@/components/icons/github";
-import { Button } from "@/components/ui/button";
 
 export function GitHubLink() {
   const [starsCount, setStarsCount] = React.useState<number | null>(null);
@@ -41,22 +40,14 @@ export function GitHubLink() {
   }, [starsCount]);
 
   return (
-    <Button
-      asChild
-      size="sm"
-      variant="ghost"
-      className="hidden sm:inline-flex h-8 shadow-none cursor-pointer"
+    <Link
+      href={siteConfig.links.github}
+      target="_blank"
+      rel="noreferrer"
+      className="text-faint hover:text-foreground hidden items-center gap-1.5 no-underline sm:flex"
     >
-      <Link href={siteConfig.links.github} target="_blank" rel="noreferrer">
-        <div className="flex items-center gap-2">
-          <GitHub className="h-4 w-4 text-muted-foreground" />
-          {!isLoading && (
-            <span className="w-fit text-xs text-muted-foreground tabular-nums">
-              {formattedCount}
-            </span>
-          )}
-        </div>
-      </Link>
-    </Button>
+      <GitHub className="size-4 shrink-0" />
+      {!isLoading && <span className="tabular-nums">{formattedCount}</span>}
+    </Link>
   );
 }

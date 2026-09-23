@@ -1,8 +1,8 @@
 import { JsonLd } from "@/components/json-ld";
 import { createMetadata } from "@/lib/metadata";
-import Link from "next/link";
+import { IndexList } from "@/components/index-list";
 import { allPages } from "content-collections";
-import { Streamdown } from "streamdown";
+import { StreamdownWrapper } from "@/components/streamdown-wrapper";
 
 const page = allPages.find((p) => p.slug === "json-best-practices");
 
@@ -76,24 +76,12 @@ export default function JsonBestPracticesPage() {
     <>
       <JsonLd data={faqSchema} />
 
-      <Streamdown>{page?.content || ""}</Streamdown>
+      <StreamdownWrapper content={page?.content || ""} />
 
-      <section className="bg-primary/5 border border-primary/20 p-8 rounded-lg mt-12">
-        <h2 className="text-3xl font-bold mb-4">
-          Validate Your JSON Practices
-        </h2>
-        <p className="text-lg mb-6">
-          Check your JSON structure and format with our free online editor.
-          Features include real-time validation, best practices checker, and
-          tree view—all without registration.
-        </p>
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
-        >
-          Try JSON Visualiser
-        </Link>
-      </section>
+      <IndexList
+        title="Try it"
+        items={[{ href: "/", title: "Validate your JSON", meta: "Open editor" }]}
+      />
     </>
   );
 }

@@ -28,13 +28,13 @@ export function WorkspaceHeader({
   return (
     <div
       className={cn(
-        "flex items-center justify-between border-b flex-shrink-0 text-xs",
+        "flex items-center justify-between border-b shrink-0",
         "border-border",
         className,
       )}
     >
       <div className="flex items-center gap-2 min-w-0">
-        {leftActions && <div className="px-3 py-1 min-w-0">{leftActions}</div>}
+        {leftActions && <div className="px-3 py-2 min-w-0">{leftActions}</div>}
         {tabs && tabs.length > 0 && (
           <div
             role="tablist"
@@ -88,26 +88,12 @@ export function WorkspaceHeader({
                     tab.content ? `workspace-tabpanel-${tab.id}` : undefined
                   }
                   className={cn(
-                    "relative px-4 py-2 cursor-pointer select-none text-xs font-medium",
-                    "transition-all duration-150 ease-in-out",
-                    "shrink-0 flex items-center gap-2 h-8",
-                    "border border-transparent border-r-border/50",
+                    "relative px-4 py-2 cursor-pointer select-none",
+                    "shrink-0 flex items-center gap-2 h-10 border-b-2",
                     selected
-                      ? cn(
-                          "bg-background text-foreground",
-                          "border-b-transparent",
-                          "before:content-[''] before:absolute before:top-0 before:left-0 before:right-0",
-                          "before:h-0.5 before:bg-primary",
-                        )
-                      : cn(
-                          "bg-muted/30 text-muted-foreground hover:bg-muted/60",
-                          "hover:text-foreground/80",
-                          "hover:after:content-[''] hover:after:absolute hover:after:inset-0",
-                          "hover:after:border hover:after:border-dashed hover:after:border-primary",
-                          "hover:after:pointer-events-none",
-                        ),
+                      ? "text-foreground border-b-foreground"
+                      : "text-faint border-b-transparent hover:text-foreground",
                   )}
-                  style={{ outline: selected ? undefined : "none" }}
                   onClick={() => onTabChange?.(tab.id)}
                   type="button"
                 >
@@ -118,8 +104,8 @@ export function WorkspaceHeader({
           </div>
         )}
       </div>
-      <div className="flex items-center gap-2 px-3 py-1 shrink-0">
-        <div className="flex items-center gap-2">{actions}</div>
+      <div className="flex items-center gap-2 px-3 py-2 shrink-0">
+        <div className="flex items-center gap-4">{actions}</div>
       </div>
     </div>
   );

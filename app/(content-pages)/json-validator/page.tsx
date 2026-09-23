@@ -1,8 +1,8 @@
 import { JsonLd } from "@/components/json-ld";
 import { createMetadata } from "@/lib/metadata";
-import Link from "next/link";
+import { IndexList } from "@/components/index-list";
 import { allPages } from "content-collections";
-import { Streamdown } from "streamdown";
+import { StreamdownWrapper } from "@/components/streamdown-wrapper";
 
 const page = allPages.find((p) => p.slug === "json-validator");
 
@@ -50,22 +50,12 @@ export default function JsonValidatorPage() {
     <>
       <JsonLd data={howToSchema} />
 
-      <Streamdown>{page?.content || ""}</Streamdown>
+      <StreamdownWrapper content={page?.content || ""} />
 
-      <section className="bg-muted/50 p-8 rounded-lg mt-12">
-        <h2 className="text-3xl font-bold mb-4">Validate Your JSON Now</h2>
-        <p className="text-lg mb-6">
-          Check your JSON for errors instantly with real-time validation.
-          Features include error highlighting, clear error messages, and
-          line/column numbers—all without registration.
-        </p>
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
-        >
-          Try JSON Validator
-        </Link>
-      </section>
+      <IndexList
+        title="Try it"
+        items={[{ href: "/", title: "Validate your JSON", meta: "Open editor" }]}
+      />
     </>
   );
 }

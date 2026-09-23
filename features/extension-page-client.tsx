@@ -358,7 +358,7 @@ export function ExtensionPageClient() {
   }, [loadJsonDocument]);
 
   return (
-    <main className="h-screen overflow-hidden bg-background text-foreground">
+    <main className="h-dvh overflow-hidden bg-background text-foreground">
       <JsonWorkspace
         mode="extension"
         shouldLoadPersistedState={shouldLoadPersistedState && !hasAcceptedPayload}

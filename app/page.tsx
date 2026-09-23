@@ -2,7 +2,7 @@ import { JsonWorkspace } from "@/features/json-workspace";
 
 export default function Page() {
 	return (
-		<div className="h-screen overflow-hidden">
+		<div className="h-dvh overflow-hidden">
 			<JsonWorkspace />
 		</div>
 	);

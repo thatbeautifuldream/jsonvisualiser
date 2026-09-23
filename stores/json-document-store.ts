@@ -12,12 +12,6 @@ export type TValidationResult = {
   parsedJson: unknown;
 };
 
-export type TJsonStats = {
-  lines: number;
-  characters: number;
-  size: number;
-};
-
 export type TLoadJsonSource = "manual" | "extension";
 
 export type TJsonDocumentMetadata = {
@@ -49,12 +43,10 @@ export type TJsonStore = {
     persist?: boolean;
   }) => Promise<void>;
   getValidation: () => TValidationResult;
-  getStats: () => TJsonStats;
   hasContent: () => boolean;
 };
 
 const validationCache = new Map<string, TValidationResult>();
-const statsCache = new Map<string, TJsonStats>();
 
 export const useJsonStore = create<TJsonStore>((set, get) => ({
   jsonContent: "",
@@ -63,13 +55,11 @@ export const useJsonStore = create<TJsonStore>((set, get) => ({
   setJsonContent: (content: string) => {
     set({ jsonContent: content });
     validationCache.clear();
-    statsCache.clear();
   },
 
   saveJson: (content: string) => {
     set({ jsonContent: content });
     validationCache.clear();
-    statsCache.clear();
     if (typeof window === "undefined") return;
 
     void (async () => {
@@ -81,7 +71,6 @@ export const useJsonStore = create<TJsonStore>((set, get) => ({
   clearJson: () => {
     set({ jsonContent: "" });
     validationCache.clear();
-    statsCache.clear();
     if (typeof window === "undefined") return;
 
     void (async () => {
@@ -134,7 +123,6 @@ export const useJsonStore = create<TJsonStore>((set, get) => ({
 
     set({ jsonContent: content, metadata });
     validationCache.clear();
-    statsCache.clear();
 
     if (!persist || typeof window === "undefined") {
       return;
@@ -178,25 +166,6 @@ export const useJsonStore = create<TJsonStore>((set, get) => ({
       validationCache.set(content, result);
       return result;
     }
-  },
-
-  getStats: (): TJsonStats => {
-    const content = get().jsonContent;
-    
-    const cached = statsCache.get(content);
-    if (cached) return cached;
-
-    const lines = content ? content.split("\n").length : 0;
-    const characters = content.length;
-    const size = new Blob([content]).size;
-    
-    const result: TJsonStats = {
-      lines,
-      characters,
-      size,
-    };
-    statsCache.set(content, result);
-    return result;
   },
 
   hasContent: () => {

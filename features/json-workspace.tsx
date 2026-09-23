@@ -9,12 +9,12 @@ import {
   useState,
   useTransition,
 } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { WorkspaceHeader } from "./workspace-header";
 import { EditorToolbar } from "./editor-toolbar";
 import { JsonEditor, type TJsonEditorHandle } from "./json-editor";
 import { JsonTreeViewer } from "./json-tree-viewer";
-import { StatusBar } from "./status-bar";
 import { useJsonStore } from "@/stores/json-document-store";
 import { TypeGeneratorDialog } from "./type-generator-dialog";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -37,12 +37,10 @@ export function JsonWorkspace({
   const [isTypeDialogOpen, setIsTypeDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const editorRef = useRef<TJsonEditorHandle | null>(null);
-  const statusBarRef = useRef<HTMLDivElement>(null);
 
-  const { theme: appTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   const validation = useJsonStore((state) => state.getValidation());
-  const stats = useJsonStore((state) => state.getStats());
   const hasFileContent = useJsonStore((state) => state.hasContent());
   const jsonContent = useJsonStore((state) => state.jsonContent);
   const metadata = useJsonStore((state) => state.metadata);
@@ -52,7 +50,6 @@ export function JsonWorkspace({
   const loadFromIndexedDB = useJsonStore((state) => state.loadFromIndexedDB);
 
   const isValid = validation.isValid;
-  const error = validation.error;
   const parsedJson = validation.parsedJson;
   const isExtensionMode = mode === "extension";
 
@@ -157,8 +154,8 @@ export function JsonWorkspace({
   }, []);
 
   useEffect(() => {
-    setEditorTheme(appTheme === "dark" ? "dark" : "light");
-  }, [appTheme]);
+    setEditorTheme(resolvedTheme === "dark" ? "dark" : "light");
+  }, [resolvedTheme]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -180,23 +177,12 @@ export function JsonWorkspace({
         id: "editor",
         label: "JSON Editor",
         content: (
-          <div className="border flex flex-col h-full">
-            <div className="flex-1 min-h-0">
-              <JsonEditor
-                ref={editorRef}
-                value={jsonContent}
-                onChange={handleEditorChange}
-                theme={editorTheme}
-              />
-            </div>
-            <StatusBar
-              ref={statusBarRef}
-              isValid={isValid}
-              error={error}
-              stats={stats}
-              hasContent={hasFileContent}
-            />
-          </div>
+          <JsonEditor
+            ref={editorRef}
+            value={jsonContent}
+            onChange={handleEditorChange}
+            theme={editorTheme}
+          />
         ),
       },
     ];
@@ -217,8 +203,6 @@ export function JsonWorkspace({
     isValid,
     parsedJson,
     hasFileContent,
-    error,
-    stats,
   ]);
 
   const activeTabContent = useMemo(() => {
@@ -227,7 +211,14 @@ export function JsonWorkspace({
 
   const leftActions = useMemo(() => {
     if (!isExtensionMode) {
-      return <div />;
+      return (
+        <div className="hidden items-center gap-4 md:flex">
+          <span className="font-medium">JSON Visualiser</span>
+          <Link href="/json-guide" className="text-faint hover:text-foreground no-underline">
+            Guide
+          </Link>
+        </div>
+      );
     }
 
     const sourceLabel = (() => {
@@ -245,7 +236,7 @@ export function JsonWorkspace({
 
     return (
       <span
-        className="block max-w-[360px] truncate text-xs text-muted-foreground"
+        className="block max-w-[360px] truncate text-faint"
         title={metadata.sourceUrl ?? undefined}
       >
         {sourceLabel}
@@ -255,7 +246,7 @@ export function JsonWorkspace({
 
   const headerActions = useMemo(() => {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         <EditorToolbar
           onFormat={formatJson}
           onMinify={minifyJson}
@@ -285,7 +276,7 @@ export function JsonWorkspace({
 
   return (
     <>
-      <div className="h-screen flex flex-col">
+      <div className="h-dvh flex flex-col">
         <WorkspaceHeader
           tabs={tabs}
           activeTab={activeTab}

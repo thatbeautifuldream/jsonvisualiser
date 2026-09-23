@@ -24,8 +24,8 @@ type TJsonEditorProps = {
 
 const editorFont = EditorView.theme({
 	"&": { fontSize: "12px", height: "100%" },
-	".cm-content": { fontFamily: "var(--font-geist-mono)" },
-	".cm-gutters": { fontFamily: "var(--font-geist-mono)" },
+	".cm-content": { fontFamily: "var(--font-mono)" },
+	".cm-gutters": { fontFamily: "var(--font-mono)" },
 });
 
 export const JsonEditor = forwardRef<TJsonEditorHandle, TJsonEditorProps>(

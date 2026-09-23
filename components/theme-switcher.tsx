@@ -1,110 +1,61 @@
-'use client';
+"use client";
 
-import { useControllableState } from '@radix-ui/react-use-controllable-state';
-import { Moon, Sun } from 'lucide-react';
-import { motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
-import { useTheme } from 'next-themes';
-import { cn } from '@/lib/utils';
+import { useTheme } from "next-themes";
+import { useCallback, useEffect, useRef } from "react";
+import { flushSync } from "react-dom";
+import { cn } from "@/lib/utils";
 
-const themes = [
-    {
-        key: 'light',
-        icon: Sun,
-        label: 'Light theme',
-    },
-    {
-        key: 'dark',
-        icon: Moon,
-        label: 'Dark theme',
-    },
-];
+export function ThemeSwitcher({ className }: { className?: string }) {
+  const { setTheme } = useTheme();
+  const activeTransition = useRef<ViewTransition | null>(null);
 
-type TThemeSwitcherProps = {
-    value?: 'light' | 'dark';
-    onChange?: (theme: 'light' | 'dark') => void;
-    defaultValue?: 'light' | 'dark';
-    className?: string;
-};
+  const toggle = useCallback(() => {
+    const root = document.documentElement;
+    const next = root.classList.contains("dark") ? "light" : "dark";
+    const apply = () => {
+      root.classList.toggle("dark", next === "dark");
+      flushSync(() => setTheme(next));
+    };
 
-export const ThemeSwitcher = ({
-    value,
-    onChange,
-    defaultValue = 'dark',
-    className,
-}: TThemeSwitcherProps) => {
-    const { theme: currentTheme, setTheme } = useTheme();
-    const [theme, setInternalTheme] = useControllableState({
-        defaultProp: defaultValue,
-        prop: value || (currentTheme as 'light' | 'dark'),
-        onChange: (newTheme) => {
-            setTheme(newTheme);
-            onChange?.(newTheme);
-        },
-    });
-    const [mounted, setMounted] = useState(false);
-
-    const handleThemeClick = useCallback(
-        (themeKey: 'light' | 'dark') => {
-            setInternalTheme(themeKey);
-        },
-        [setInternalTheme]
-    );
-
-    // Prevent hydration mismatch
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
-                event.preventDefault();
-                setInternalTheme(theme === 'dark' ? 'light' : 'dark');
-            }
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [theme, setInternalTheme]);
-
-    if (!mounted) {
-        return null;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!document.startViewTransition || reduced) {
+      apply();
+      return;
     }
 
-    return (
-        <div
-            className={cn(
-                'relative isolate flex h-8 rounded-full bg-background p-1 ring-1 ring-border',
-                className
-            )}
-        >
-            {themes.map(({ key, icon: Icon, label }) => {
-                const isActive = theme === key;
-                return (
-                    <button
-                        aria-label={label}
-                        className="relative h-6 w-6 rounded-full cursor-pointer"
-                        key={key}
-                        onClick={() => handleThemeClick(key as 'light' | 'dark')}
-                        type="button"
-                    >
-                        {isActive && (
-                            <motion.div
-                                className="absolute inset-0 rounded-full bg-secondary"
-                                layoutId="activeTheme"
-                                transition={{ type: 'spring', duration: 0.5 }}
-                            />
-                        )}
-                        <Icon
-                            className={cn(
-                                'relative z-10 m-auto h-4 w-4',
-                                isActive ? 'text-foreground' : 'text-muted-foreground'
-                            )}
-                        />
-                    </button>
-                );
-            })}
-        </div>
-    );
-}; 
+    root.classList.add("theme-transition");
+    const transition = document.startViewTransition(apply);
+    activeTransition.current = transition;
+    // A rapid second toggle skips this transition while the new one is still
+    // running — only the latest transition may clean up the class.
+    transition.finished.finally(() => {
+      if (activeTransition.current === transition) {
+        activeTransition.current = null;
+        root.classList.remove("theme-transition");
+      }
+    });
+  }, [setTheme]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "d") {
+        event.preventDefault();
+        toggle();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [toggle]);
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      className={cn("text-faint hover:text-foreground cursor-pointer", className)}
+    >
+      <span className="dark:hidden">Dark mode</span>
+      <span className="not-dark:hidden">Light mode</span>
+    </button>
+  );
+}

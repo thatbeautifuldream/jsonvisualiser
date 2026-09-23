@@ -5,137 +5,468 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans--font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss03";
+  --font-mono:
+    "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-rule: var(--rule);
+  --color-underline: var(--underline);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--foreground);
+  --color-primary-foreground: var(--background);
+  --color-secondary: var(--muted);
+  --color-secondary-foreground: var(--foreground);
+  --color-card: var(--background);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--background);
+  --color-popover-foreground: var(--foreground);
+  --color-destructive: var(--destructive);
+  --radius-sm: calc(var(--radius) - 0.25rem);
+  --radius-md: calc(var(--radius) - 0.125rem);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+}
+@theme {
+  --font-weight-medium: 500;
+  --font-weight-semibold: 560;
+  --font-weight-bold: 600;
 }
 
 :root {
-  --radius: 0.625rem;
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  color-scheme: light;
+  --background: #fdfdfc;
+  --foreground: #111111;
+  --muted: rgba(0, 0, 0, 0.04);
+  --muted-foreground: rgba(0, 0, 0, 0.65);
+  --faint: rgba(0, 0, 0, 0.4);
+  --accent: rgba(0, 0, 0, 0.06);
+  --border: rgba(0, 0, 0, 0.05);
+  --rule: rgba(0, 0, 0, 0.07);
+  --underline: rgba(0, 0, 0, 0.15);
+  --input: rgba(0, 0, 0, 0.1);
+  --ring: rgba(0, 122, 255, 0.5);
+  --destructive: #e5484d;
+  --radius: 0.5rem;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  color-scheme: dark;
+  --background: #111111;
+  --foreground: #fdfdfc;
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: rgba(255, 255, 255, 0.65);
+  --faint: rgba(255, 255, 255, 0.42);
+  --accent: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.07);
+  --rule: rgba(255, 255, 255, 0.1);
+  --underline: rgba(255, 255, 255, 0.2);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: rgba(62, 159, 255, 0.6);
+  --destructive: #ff6369;
+}
+
+
+html {
+  background-color: var(--background);
+  scroll-padding-top: 5.25rem;
+}
+
+@utility top-fade {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-background) 100%, transparent) 0%,
+    color-mix(in srgb, var(--color-background) 73.8%, transparent) 19%,
+    color-mix(in srgb, var(--color-background) 54.1%, transparent) 34%,
+    color-mix(in srgb, var(--color-background) 38.2%, transparent) 47%,
+    color-mix(in srgb, var(--color-background) 27.8%, transparent) 56.5%,
+    color-mix(in srgb, var(--color-background) 19.4%, transparent) 65%,
+    color-mix(in srgb, var(--color-background) 12.6%, transparent) 73%,
+    color-mix(in srgb, var(--color-background) 7.5%, transparent) 80.2%,
+    color-mix(in srgb, var(--color-background) 4.2%, transparent) 86.1%,
+    color-mix(in srgb, var(--color-background) 2.1%, transparent) 91%,
+    color-mix(in srgb, var(--color-background) 0.8%, transparent) 95.2%,
+    color-mix(in srgb, var(--color-background) 0.2%, transparent) 98.2%,
+    color-mix(in srgb, var(--color-background) 0%, transparent) 100%
+  );
+}
+
+@utility section-title {
+  color: var(--color-faint);
+  padding-bottom: --spacing(2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@utility index-list {
+  & a {
+    transition: opacity 140ms ease;
+  }
+  @media (hover: hover) and (min-width: 32.5rem) {
+    &:has(a:hover) a:not(:hover) {
+      opacity: 0.3;
+    }
+  }
+}
+
+@utility stagger {
+  @media (prefers-reduced-motion: no-preference) {
+    & > * {
+      animation: stagger-in 500ms ease both;
+    }
+    & > :nth-child(2) {
+      animation-delay: 50ms;
+    }
+    & > :nth-child(3) {
+      animation-delay: 100ms;
+    }
+    & > :nth-child(4) {
+      animation-delay: 150ms;
+    }
+    & > :nth-child(n + 5) {
+      animation-delay: 200ms;
+    }
+  }
+}
+
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+/* transitions.dev — Theme wipe + page transition tokens. */
+:root {
+  --wipe-dur: 900ms;
+  --wipe-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --page-out-dur: 150ms;
+  --page-in-dur: 400ms;
+  --page-in-delay: 100ms;
+}
+
+/* Both wipe variants stack the still old snapshot under the incoming one. */
+html::view-transition-old(root) {
+  mix-blend-mode: normal;
+  z-index: 1;
+}
+
+html::view-transition-new(root) {
+  mix-blend-mode: normal;
+  z-index: 2;
+}
+
+/* Page navigation: a quiet cross-blur — the old page blurs and fades out
+   fast, then the new one rises in softly. Gated on :not(.theme-transition)
+   so these rules can never match while a theme toggle's view transition is
+   running. */
+@keyframes page-out {
+  to {
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateY(12px);
+  }
+}
+
+html:not(.theme-transition)::view-transition-old(root) {
+  animation: page-out var(--page-out-dur) ease-out both;
+}
+
+html:not(.theme-transition)::view-transition-new(root) {
+  animation: page-in var(--page-in-dur) var(--wipe-ease) var(--page-in-delay)
+    both;
+}
+
+/* The back link stays put across navigations: it gets its own snapshot that
+   swaps instantly instead of riding the page blur. Theme wipes drop the name
+   so the wipe sweeps it with the rest of the page. */
+[data-back-link] {
+  view-transition-name: back-link;
+}
+
+html.theme-transition [data-back-link] {
+  view-transition-name: none;
+}
+
+::view-transition-group(back-link),
+::view-transition-new(back-link) {
+  animation: none;
+}
+
+::view-transition-old(back-link) {
+  display: none;
+}
+
+/* Theme toggle (html.theme-transition, set by the footer toggle): the old
+   snapshot holds still underneath while the new theme is revealed through an
+   oversized gradient mask sweeping from the bottom-left corner to the
+   top-right; the wide transparent band in the gradient is what gives the
+   wipe its soft blurred edge. */
+@keyframes wipe-diagonal {
+  from {
+    mask-position: 100% 0%;
+  }
+  to {
+    mask-position: 0% 100%;
+  }
+}
+
+html.theme-transition::view-transition-old(root) {
+  animation: none;
+}
+
+html.theme-transition::view-transition-new(root) {
+  mask-image: linear-gradient(45deg, #000 35%, transparent 65%);
+  mask-size: 300% 300%;
+  mask-repeat: no-repeat;
+  will-change: mask-position;
+  animation: wipe-diagonal var(--wipe-dur) var(--wipe-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+    mask-image: none !important;
+  }
+}
+
+@utility prose {
+  & > * + * {
+    margin-top: --spacing(4);
+  }
+  & > :where(h1, h2, h3, h4, h5, h6) {
+    font-weight: var(--font-weight-semibold);
+    text-wrap: balance;
+    scroll-margin-top: 5rem;
+  }
+  & > * + :where(h1, h2) {
+    margin-top: --spacing(9);
+  }
+  & > * + :where(h3, h4, h5, h6) {
+    margin-top: --spacing(6);
+  }
+  & > :where(h1, h2, h3, h4, h5, h6) + * {
+    margin-top: --spacing(2);
+  }
+  & :where(p, li) {
+    text-wrap: pretty;
+  }
+  & :where(a) {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--color-underline);
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+  }
+  & :where(a:hover) {
+    text-decoration-color: var(--color-muted-foreground);
+  }
+  & :where(strong) {
+    font-weight: var(--font-weight-bold);
+  }
+  & :where(ul, ol) {
+    padding-left: --spacing(5);
+  }
+  & :where(ul) {
+    list-style: none;
+  }
+  & :where(ol) {
+    list-style: decimal;
+  }
+  & :where(ol > li)::marker {
+    color: var(--color-faint);
+  }
+  & :where(li) {
+    position: relative;
+    padding-left: --spacing(3);
+  }
+  & :where(li + li) {
+    margin-top: --spacing(2);
+  }
+  & :where(ul > li)::before {
+    content: "";
+    position: absolute;
+    right: 100%;
+    top: 0.675em;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 50%;
+    background: var(--color-faint);
+  }
+  & :where(blockquote) {
+    position: relative;
+    padding-left: --spacing(4);
+    font-style: italic;
+    color: var(--color-muted-foreground);
+  }
+  & :where(blockquote)::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0.125rem;
+    border-radius: 0.3125rem;
+    background: var(--color-rule);
+  }
+  & :where(:not(pre) > code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--color-muted-foreground);
+    background-color: var(--color-muted);
+    border-radius: 0.25rem;
+    padding: 0.1rem 0.2rem;
+  }
+  & :where(pre) {
+    font-family: var(--font-mono);
+    line-height: 1.55;
+    border-radius: var(--radius-lg);
+    padding: 0.875rem 1rem;
+    overflow-x: auto;
+  }
+  & :where(pre code) {
+    font-size: inherit;
+  }
+  & :where(img, video) {
+    border-radius: var(--radius-lg);
+    outline: 1px solid var(--color-border);
+    outline-offset: -1px;
+  }
+  & > * + :where(p:has(> img), img, figure, video, pre) {
+    margin-top: --spacing(6);
+  }
+  & :where(hr) {
+    width: 3.125rem;
+    border-color: var(--color-rule);
+    margin-block: --spacing(10);
+  }
+  & :where(table) {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  & :where(th) {
+    text-align: left;
+    font-weight: var(--font-weight-medium);
+    border-bottom: 1px solid var(--color-input);
+    padding: 0.375rem 0.75rem;
+  }
+  & :where(td) {
+    color: var(--color-muted-foreground);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.375rem 0.75rem;
+  }
+  & :where(th, td):first-child {
+    padding-left: 0;
+  }
+  & :where(th, td):last-child {
+    padding-right: 0;
+  }
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  /* Apply a squircle curve to every rounded corner in the app.
-     corner-shape modifies the corner curve; border-radius (from rounded-* classes) sets its extent. */
-  * {
+  *,
+  *::before,
+  *::after {
     corner-shape: squircle;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
 
-@layer utilities {
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .scrollbar-hide::-webkit-scrollbar {
+  * {
+    @apply border-border;
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
     display: none;
   }
 
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+  html {
+    @apply bg-background font-sans;
+    font-optical-sizing: auto;
+  }
+
+  body {
+    @apply bg-background text-foreground text-base/6 antialiased sm:text-sm/5;
+    font-weight: 460;
+    letter-spacing: -0.00563rem;
+  }
+
+  ::selection {
+    color: var(--color-foreground);
+    background: var(--color-accent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  a {
+    @apply decoration-underline hover:decoration-muted-foreground text-current underline decoration-1 underline-offset-[3px];
+  }
+}
+
+:root {
+  --icon-swap-dur: 250ms;
+  --icon-swap-blur: 2px;
+  --icon-swap-start-scale: 0.25;
+  --icon-swap-ease: ease-in-out;
+}
+
+.t-icon-swap {
+  position: relative;
+  display: inline-grid;
+}
+.t-icon-swap .t-icon {
+  grid-area: 1 / 1;
+  transition:
+    opacity var(--icon-swap-dur) var(--icon-swap-ease),
+    filter var(--icon-swap-dur) var(--icon-swap-ease),
+    transform var(--icon-swap-dur) var(--icon-swap-ease);
+  will-change: opacity, filter, transform;
+}
+.t-icon-swap[data-state="a"] .t-icon[data-icon="a"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="b"] {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+.t-icon-swap[data-state="a"] .t-icon[data-icon="b"],
+.t-icon-swap[data-state="b"] .t-icon[data-icon="a"] {
+  opacity: 0;
+  filter: blur(var(--icon-swap-blur));
+  transform: scale(var(--icon-swap-start-scale));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-icon-swap .t-icon {
+    transition: none !important;
   }
 }

@@ -28,9 +28,9 @@ const ToolbarButton = ({
 }) => (
   <Button
     onClick={onClick}
-    className={`text-xs ${className}`}
+    className={`relative h-auto p-0 has-[>svg]:p-0 ${className}`}
     disabled={disabled}
-    size="xs"
+    size="sm"
     variant="ghost"
     type="button"
   >
@@ -52,7 +52,7 @@ export function EditorToolbar({
 }: TEditorToolbarProps) {
   if (!isVisible) return null;
   return (
-    <div className={`flex flex-wrap items-center gap-1 ${className}`}>
+    <div className={`flex flex-wrap items-center gap-4 ${className}`}>
       <ToolbarButton onClick={onFormat} disabled={!hasContent}>
         Format
       </ToolbarButton>

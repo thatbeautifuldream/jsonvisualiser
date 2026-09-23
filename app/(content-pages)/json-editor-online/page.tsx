@@ -1,8 +1,8 @@
 import { JsonLd } from "@/components/json-ld";
 import { createMetadata } from "@/lib/metadata";
-import Link from "next/link";
+import { IndexList } from "@/components/index-list";
 import { allPages } from "content-collections";
-import { Streamdown } from "streamdown";
+import { StreamdownWrapper } from "@/components/streamdown-wrapper";
 
 const page = allPages.find((p) => p.slug === "json-editor-online");
 
@@ -46,30 +46,15 @@ export default function JsonEditorOnlinePage() {
     <>
       <JsonLd data={softwareApplicationSchema} />
 
-      <Streamdown>{page?.content || ""}</Streamdown>
+      <StreamdownWrapper content={page?.content || ""} />
 
-      <section className="bg-primary/5 border border-primary/20 p-8 rounded-lg mt-12">
-        <h2 className="text-3xl font-bold mb-4">Try JSON Visualiser Now</h2>
-        <p className="text-lg mb-6">
-          No registration. No download. No limits. Start editing JSON in seconds
-          with professional Monaco editing, tree visualization, and
-          privacy-first design.
-        </p>
-        <div className="flex flex-wrap gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
-          >
-            Open JSON Editor
-          </Link>
-          <Link
-            href="/json-guide"
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8"
-          >
-            Learn JSON
-          </Link>
-        </div>
-      </section>
+      <IndexList
+        title="Try it"
+        items={[
+          { href: "/", title: "Open the JSON editor", meta: "No sign-up" },
+          { href: "/json-guide", title: "Learn JSON", meta: "Guide" },
+        ]}
+      />
     </>
   );
 }

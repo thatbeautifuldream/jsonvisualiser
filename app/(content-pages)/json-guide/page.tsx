@@ -1,8 +1,8 @@
 import { JsonLd } from "@/components/json-ld";
 import { createMetadata } from "@/lib/metadata";
-import Link from "next/link";
+import { IndexList } from "@/components/index-list";
 import { allPages } from "content-collections";
-import { Streamdown } from "streamdown";
+import { StreamdownWrapper } from "@/components/streamdown-wrapper";
 
 const page = allPages.find((p) => p.slug === "json-guide");
 
@@ -74,22 +74,12 @@ export default function JsonGuidePage() {
     <>
       <JsonLd data={faqSchema} />
 
-      <Streamdown>{page?.content || ""}</Streamdown>
+      <StreamdownWrapper content={page?.content || ""} />
 
-      <section className="bg-muted/50 p-8 rounded-lg mt-12">
-        <h2 className="text-3xl font-bold mb-4">Practice Your JSON Skills</h2>
-        <p className="text-lg mb-6">
-          Learn JSON by doing. Our free online editor includes real-time
-          validation, tree view, and formatting tools to
-          help you master JSON—all without registration.
-        </p>
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"
-        >
-          Try JSON Visualiser
-        </Link>
-      </section>
+      <IndexList
+        title="Try it"
+        items={[{ href: "/", title: "Practice in the editor", meta: "Open editor" }]}
+      />
     </>
   );
 }
