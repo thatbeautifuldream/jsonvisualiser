@@ -20,6 +20,7 @@ import { TypeGeneratorDialog } from "./type-generator-dialog";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { GitHubLink } from "./github-link";
 import { unescapeJsonText } from "@/lib/unescape-json";
+import { DEMO_JSON } from "@/lib/demo-json";
 
 type EditorTheme = "light" | "dark";
 
@@ -48,6 +49,7 @@ export function JsonWorkspace({
   const clearJson = useJsonStore((state) => state.clearJson);
   const setJsonContent = useJsonStore((state) => state.setJsonContent);
   const loadFromIndexedDB = useJsonStore((state) => state.loadFromIndexedDB);
+  const loadJsonDocument = useJsonStore((state) => state.loadJsonDocument);
 
   const isValid = validation.isValid;
   const parsedJson = validation.parsedJson;
@@ -57,8 +59,13 @@ export function JsonWorkspace({
     if (!shouldLoadPersistedState) {
       return;
     }
+    if (new URLSearchParams(window.location.search).get("demo") === "true") {
+      void loadJsonDocument({ content: DEMO_JSON, source: "manual", persist: false });
+      setActiveTab("tree");
+      return;
+    }
     void loadFromIndexedDB();
-  }, [loadFromIndexedDB, shouldLoadPersistedState]);
+  }, [loadFromIndexedDB, loadJsonDocument, shouldLoadPersistedState]);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.getValue() !== jsonContent) {
