@@ -1,12 +1,21 @@
 "use client";
 
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { cn } from "@/lib/utils";
 
 export function ThemeSwitcher({ className }: { className?: string }) {
-  const { setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const tooltip =
+    mounted && resolvedTheme === "dark" ? "Light mode" : "Dark mode";
   const activeTransition = useRef<ViewTransition | null>(null);
 
   const toggle = useCallback(() => {
@@ -52,10 +61,15 @@ export function ThemeSwitcher({ className }: { className?: string }) {
     <button
       type="button"
       onClick={toggle}
-      className={cn("text-faint hover:text-foreground cursor-pointer", className)}
+      title={tooltip}
+      aria-label={tooltip}
+      className={cn(
+        "text-faint hover:text-foreground inline-flex cursor-pointer items-center",
+        className,
+      )}
     >
-      <span className="dark:hidden">Dark mode</span>
-      <span className="not-dark:hidden">Light mode</span>
+      <Moon className="size-4 shrink-0 dark:hidden" aria-hidden />
+      <Sun className="size-4 shrink-0 not-dark:hidden" aria-hidden />
     </button>
   );
 }
